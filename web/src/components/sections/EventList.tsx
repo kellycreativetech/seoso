@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { StegaText } from "@/components/text/StegaText";
 import { eventDateParts } from "@/lib/dates";
+import type { StegaBranded } from "next-sanity";
 import type { UPCOMING_EVENTS_QUERY_RESULT } from "@/sanity/types";
 
-type EventSummary = UPCOMING_EVENTS_QUERY_RESULT[number];
+type EventSummary = StegaBranded<UPCOMING_EVENTS_QUERY_RESULT>[number];
 
 // Programme-style list: date | what | where, with a year row whenever the year changes.
 export function EventList({ events }: { events: EventSummary[] }) {
@@ -56,10 +58,10 @@ export function EventList({ events }: { events: EventSummary[] }) {
                     href={`/events/${event.slug}`}
                     className="link link-hover decoration-primary decoration-2 underline-offset-4"
                   >
-                    {event.title}
+                    <StegaText value={event.title} />
                   </Link>
                 ) : (
-                  event.title
+                  <StegaText value={event.title} />
                 )}
               </h3>
               {event.summary && <p className="mt-2 max-w-[52ch] text-base-content/70">{event.summary}</p>}

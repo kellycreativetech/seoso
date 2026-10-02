@@ -31,14 +31,22 @@ seoso/
 
 | Task | Where | Command |
 | --- | --- | --- |
+| Run site + Studio together | root | `npm run start` (concurrently; see README.md) |
 | Run the site | `web/` | `npm run dev` → http://localhost:3000 |
 | Run the Studio | `studio/` | `npm run dev` → http://localhost:3333 |
 | Regenerate types | `studio/` | `npm run typegen` (after any schema **or** query change) |
 | Deploy schema (for MCP/Content Lake) | `studio/` | `npx sanity schemas deploy` |
 | Deploy hosted Studio | `studio/` | `npx sanity deploy` → https://seoso.sanity.studio (appId pinned in `sanity.cli.ts`) |
-| Deploy the site | `web/` | `npx netlify-cli deploy --build --prod` → https://seoso.netlify.app (project `seoso`, config in `netlify.toml`) |
+| Deploy the site | root | `npm run deploy:web` → https://seoso.netlify.app (project `seoso`) |
 | Check web | `web/` | `npx tsc --noEmit && npm run lint && npm run build` |
 | Format web | `web/` | `npm run format` (Prettier, 120 cols) |
+
+**Netlify (monorepo):** config lives in the **root** `netlify.toml` (`base = "web"`, `publish = "web/.next"`) and
+declares `@netlify/plugin-nextjs` explicitly — framework detection reads the root `package.json` and would otherwise
+skip the Next.js adapter, so every route 404s. Deploy from the repo root (the CLI resolves paths from the git root);
+a healthy deploy hashes ~50 files **and 1 function**. `web/next.config.ts` pins `turbopack.root` /
+`outputFileTracingRoot` to `web/` because the root lockfile would otherwise be taken as the workspace root. When
+connecting the GitHub repo in Netlify, leave the base directory to `netlify.toml`.
 
 `next dev` regenerates route types; if `tsc` complains about `PageProps<"/…">` or deleted routes,
 run `rm -rf .next && npx next typegen`.
@@ -159,9 +167,38 @@ if missing). Sanity MCP (`https://mcp.sanity.io`) is configured; pass `projectId
 - Never delete a field that holds data — deprecate (`deprecated`, `readOnly`, `hidden`) and migrate.
 - **Queries live in `web/src/sanity/queries.ts`, wrapped in `defineQuery`.** Project only what components need,
   always include `_key` for arrays, and reuse the `IMAGE`, `LINK`, `SEO` fragments. Results are typed via
-  TypeGen (`*_QUERY_RESULT`); `client.fetch` is overloaded, so don't add generics or casts.
-- Fetch with `client.fetch(QUERY, params, fetchOptions)` (`useCdn`, ISR `revalidate: 30`) from Server Components.
-  Switch to `defineLive` only when adding Visual Editing.
+  TypeGen (`*_QUERY_RESULT`); don't add generics or casts.
+- **Always fetch with `sanityFetch` from `@/sanity/live`** (never `client.fetch` in pages/components) so content is
+  live-updated and previewable. `const { data } = await sanityFetch({ query, params })`.
+  - `generateMetadata`: pass `stega: false`. `generateStaticParams`: `perspective: "published", stega: false`.
+  - Time-based filters take a `$now` param (see `EventsSection`), never GROQ `now()`, so results stay cacheable;
+    `revalidate = 3600` in the root layout rolls them over hourly.
+
+### Live preview (Visual Editing)
+
+- **Flow:** Studio Presentation tool → `/api/draft-mode/enable` (validates a signed secret) → Next.js draft mode →
+  `sanityFetch` returns drafts with stega → `<VisualEditing />` draws click-to-edit overlays; `<SanityLive />`
+  streams changes. Outside the Studio, an **Exit preview** button calls `/api/draft-mode/disable`.
+- **Token:** `SANITY_API_READ_TOKEN` (viewer role) — `web/.env.local` locally, a **secret** Netlify env var in
+  production (production, deploy-preview, branch-deploy contexts). Only `web/src/sanity/token.ts` reads it.
+- **Studio config:** `studio/presentation/resolve.ts` maps routes → documents (`mainDocuments`) and documents →
+  pages (`locations`). Update both when adding a route or document type. The local Studio previews
+  `localhost:3000`; the hosted Studio previews `seoso.netlify.app`. CORS allows both (with credentials).
+- **Stega rules:** strings from `sanityFetch` are typed `StegaString` (component props use `StegaBranded<…>` from
+  `next-sanity`). Run `stegaClean()` on any value used for logic — comparisons, lookups, `tel:`/IDs
+  (see `scope`, `platform`, `phone`). Never let stega reach `<head>`; render text as-is so it stays clickable.
+- **Never leave stega characters inside letter-spaced text.** Firefox applies `letter-spacing` to every invisible
+  stega character (hundreds per string): tracked labels grow ~900px wide (buttons stretch and stack) and negatively
+  tracked headings collapse. Chrome and Safari hide this, so test previews in Firefox. Render tracked CMS strings via
+  `StegaText` / `splitStega()` (`web/src/sanity/stega.ts`): the payload moves into a `data-sanity` attribute for the
+  same field, so click-to-edit still works. `ButtonLink`, `Eyebrow`, `NavLink` and `HeadingText` already do this;
+  use `<StegaText value={…} />` for any new tracked or uppercase label, title or figure. Body copy (no tracking) is fine.
+- **Non-text overlays:** `PageBuilder` wraps each section in `data-sanity` (via `dataAttr()` in
+  `web/src/sanity/data-attribute.ts`) so sections can be selected and drag-reordered. New section components get
+  this for free; add `dataAttr` for any other non-string field you want selectable.
+- **Testing without the Studio:** create a secret with `createPreviewSecret` from `@sanity/preview-url-secret`
+  (via `npx sanity exec … --with-user-token`), hit `/api/draft-mode/enable?sanity-preview-secret=…`, and reuse the
+  cookie. Discard any test drafts afterwards.
 - MCP `patch_documents`/`create_documents` write **drafts** — call `publish_documents` afterwards.
 - Images: hotspot on, alt text on informative images, `SanityImage` for rendering. Sanity's pipeline does **not**
   apply EXIF orientation — rotate pixels before uploading photos with an orientation flag.

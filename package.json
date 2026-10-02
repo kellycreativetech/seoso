@@ -1,0 +1,20 @@
+{
+  "name": "seoso",
+  "private": true,
+  "description": "SEOSO website: standalone Sanity Studio (studio/) + Next.js site (web/)",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "postinstall": "npm install --prefix studio && npm install --prefix web",
+    "start": "concurrently --names web,studio --prefix-colors blue,magenta --kill-others-on-fail \"cd web && npm run dev\" \"cd studio && npm run dev\"",
+    "dev": "npm run start",
+    "typegen": "cd studio && npm run typegen",
+    "check": "npm run typegen && cd web && npx tsc --noEmit && npm run lint && npm run build",
+    "deploy:studio": "cd studio && npm run deploy",
+    "deploy:web": "npx netlify-cli deploy --prod"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

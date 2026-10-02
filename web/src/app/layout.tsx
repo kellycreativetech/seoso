@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
 import { Newsreader, Source_Sans_3 } from "next/font/google";
 import { NavBehavior } from "@/components/site/NavBehavior";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { DisableDraftMode } from "@/components/site/DisableDraftMode";
 import { SiteDrawer } from "@/components/site/SiteDrawer";
 import { SiteHeader } from "@/components/site/SiteHeader";
-import { client, fetchOptions } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
+import { SanityLive, sanityFetch } from "@/sanity/live";
 import { SETTINGS_QUERY } from "@/sanity/queries";
 import "./globals.css";
 
@@ -30,7 +33,7 @@ const sourceSans = Source_Sans_3({
 const htmlClassName = `${newsreader.variable} ${sourceSans.variable} scroll-smooth`;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await client.fetch(SETTINGS_QUERY, {}, fetchOptions);
+  const { data: settings } = await sanityFetch({ query: SETTINGS_QUERY, stega: false });
   const title = settings?.title ?? "SEOSO";
   const image = settings?.defaultSeoImage?.asset
     ? urlFor({ asset: { _ref: settings.defaultSeoImage.asset._id } })
@@ -47,8 +50,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Hourly safety net so time-based lists (upcoming vs. past events) roll over without a content change.
+export const revalidate = 3600;
+
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const settings = await client.fetch(SETTINGS_QUERY, {}, fetchOptions);
+  const { data: settings } = await sanityFetch({ query: SETTINGS_QUERY });
+  const { isEnabled: isDraftMode } = await draftMode();
 
   return (
     <html lang="en" className={htmlClassName}>
@@ -64,6 +71,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <SiteFooter settings={settings} />
         </SiteDrawer>
         <NavBehavior />
+        <SanityLive />
+        {isDraftMode && (
+          <>
+            <VisualEditing />
+            <DisableDraftMode />
+          </>
+        )}
       </body>
     </html>
   );

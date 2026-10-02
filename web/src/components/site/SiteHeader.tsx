@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { urlFor } from "@/sanity/image";
+import { StegaText } from "@/components/text/StegaText";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
 import { DRAWER_ID } from "./SiteDrawer";
@@ -28,17 +29,19 @@ export function Logo({ settings, className }: { settings: Settings | null; class
   );
 }
 
+// navbar-start/end default to 50% each; the logo needs far less, so give the menu side the rest.
+// (At 1024–1150px, Firefox's wider text otherwise overflows the menu into the Donate button.)
 export function SiteHeader({ settings }: { settings: Settings | null }) {
   return (
     <header className="relative z-10 bg-neutral text-neutral-content">
       <Container>
         <nav aria-label="Main" className="navbar min-h-0 gap-6 px-0 py-5">
-          <div className="navbar-start">
+          <div className="navbar-start w-auto shrink-0">
             <Link href="/" aria-label={`${settings?.title ?? "SEOSO"} home`} className="shrink-0">
               <Logo settings={settings} className="h-10 w-auto lg:h-12" />
             </Link>
           </div>
-          <div className="navbar-end gap-4">
+          <div className="navbar-end w-auto flex-1 gap-4">
             <ul
               data-site-menu
               className="menu menu-horizontal hidden flex-nowrap text-small font-semibold tracking-[0.12em] uppercase lg:flex"
@@ -47,7 +50,9 @@ export function SiteHeader({ settings }: { settings: Settings | null }) {
                 item.children?.length ? (
                   <li key={item._key}>
                     <details>
-                      <summary>{item.label}</summary>
+                      <summary>
+                        <StegaText value={item.label} />
+                      </summary>
                       <ul className="z-20 w-60 bg-neutral p-2 text-neutral-content">
                         {item.children.map((child) => (
                           <li key={child._key}>

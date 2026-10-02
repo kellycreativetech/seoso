@@ -2,28 +2,29 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DetailHeader } from "@/components/detail/DetailHeader";
 import { RichText } from "@/components/text/RichText";
+import { StegaText } from "@/components/text/StegaText";
 import { Container } from "@/components/ui/Container";
 import { TextLink } from "@/components/ui/TextLink";
 import { formatDate } from "@/lib/dates";
-import { client, fetchOptions } from "@/sanity/client";
+import { sanityFetch } from "@/sanity/live";
 import { buildMetadata } from "@/sanity/metadata";
 import { POST_QUERY, POST_SLUGS_QUERY } from "@/sanity/queries";
 
 export async function generateStaticParams() {
-  const posts = await client.fetch(POST_SLUGS_QUERY, {}, fetchOptions);
+  const { data: posts } = await sanityFetch({ query: POST_SLUGS_QUERY, perspective: "published", stega: false });
   return posts.filter((post) => post.slug).map((post) => ({ slug: post.slug! }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/news/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const post = await client.fetch(POST_QUERY, { slug }, fetchOptions);
+  const { data: post } = await sanityFetch({ query: POST_QUERY, params: { slug }, stega: false });
   if (!post) return {};
   return buildMetadata({ seo: post.seo, title: post.title, description: post.excerpt });
 }
 
 export default async function PostPage({ params }: PageProps<"/news/[slug]">) {
   const { slug } = await params;
-  const post = await client.fetch(POST_QUERY, { slug }, fetchOptions);
+  const { data: post } = await sanityFetch({ query: POST_QUERY, params: { slug } });
   if (!post) notFound();
 
   return (
@@ -31,7 +32,7 @@ export default async function PostPage({ params }: PageProps<"/news/[slug]">) {
       <DetailHeader
         crumbs={[{ label: "News", href: "/news" }]}
         eyebrow={post.publishedAt ? formatDate(post.publishedAt) : undefined}
-        title={post.title}
+        title={<StegaText value={post.title} />}
         lead={post.excerpt}
       />
       <section className="py-16 sm:py-24">

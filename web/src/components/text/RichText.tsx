@@ -1,4 +1,4 @@
-import { PortableText, type PortableTextComponents } from "next-sanity";
+import { PortableText, type PortableTextComponents, type StegaBranded } from "next-sanity";
 import type { BlockContent } from "@/sanity/types";
 import { SanityImage } from "@/components/ui/SanityImage";
 
@@ -44,7 +44,9 @@ const components: PortableTextComponents = {
   },
 };
 
-export function RichText({ value }: { value: BlockContent | null | undefined }) {
+type Value = BlockContent | StegaBranded<BlockContent> | null | undefined;
+
+export function RichText({ value }: { value: Value }) {
   if (!value?.length) return null;
   return <PortableText value={value} components={components} />;
 }

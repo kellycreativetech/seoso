@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { splitStega } from "@/sanity/stega";
 import { SmartLink } from "./SmartLink";
 
 type Variant = "brand" | "brandBlock" | "outlineOnDark" | "outlineOnDarkSmall";
@@ -18,9 +19,11 @@ const variants: Record<Variant, string> = {
 type Props = { href: string | null; variant?: Variant; children: ReactNode };
 
 export function ButtonLink({ href, variant = "brand", children }: Props) {
+  // Tracked label: keep stega out of the text (see sanity/stega.ts)
+  const { text, attr } = typeof children === "string" ? splitStega(children) : { text: children, attr: undefined };
   return (
-    <SmartLink href={href} className={variants[variant]}>
-      {children}
+    <SmartLink href={href} className={variants[variant]} data-sanity={attr}>
+      {text}
     </SmartLink>
   );
 }

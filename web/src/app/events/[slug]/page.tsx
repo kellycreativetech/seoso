@@ -3,21 +3,22 @@ import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { DetailHeader } from "@/components/detail/DetailHeader";
 import { RichText } from "@/components/text/RichText";
+import { StegaText } from "@/components/text/StegaText";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
 import { eventDateParts, formatTime } from "@/lib/dates";
-import { client, fetchOptions } from "@/sanity/client";
+import { sanityFetch } from "@/sanity/live";
 import { buildMetadata } from "@/sanity/metadata";
 import { EVENT_QUERY, EVENT_SLUGS_QUERY } from "@/sanity/queries";
 
 export async function generateStaticParams() {
-  const events = await client.fetch(EVENT_SLUGS_QUERY, {}, fetchOptions);
+  const { data: events } = await sanityFetch({ query: EVENT_SLUGS_QUERY, perspective: "published", stega: false });
   return events.filter((event) => event.slug).map((event) => ({ slug: event.slug! }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/events/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const event = await client.fetch(EVENT_QUERY, { slug }, fetchOptions);
+  const { data: event } = await sanityFetch({ query: EVENT_QUERY, params: { slug }, stega: false });
   if (!event) return {};
   return buildMetadata({ seo: event.seo, title: event.title, description: event.summary });
 }
@@ -26,7 +27,7 @@ const label = "text-small font-semibold tracking-[0.14em] text-secondary upperca
 
 export default async function EventPage({ params }: PageProps<"/events/[slug]">) {
   const { slug } = await params;
-  const event = await client.fetch(EVENT_QUERY, { slug }, fetchOptions);
+  const { data: event } = await sanityFetch({ query: EVENT_QUERY, params: { slug } });
   if (!event?.start) notFound();
 
   const date = eventDateParts(event.start);
@@ -41,7 +42,11 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
           { label: isPast ? "Past events" : "Season", href: isPast ? "/events#past" : "/events#season" },
         ]}
         eyebrow={`${date.long} · ${date.time}${event.end ? `–${formatTime(new Date(event.end))}` : ""}`}
-        title={<span className={event.isNamedProgram ? "italic" : undefined}>{event.title}</span>}
+        title={
+          <span className={event.isNamedProgram ? "italic" : undefined}>
+            <StegaText value={event.title} />
+          </span>
+        }
         lead={event.summary}
       >
         {event.ticketUrl && !isPast && (

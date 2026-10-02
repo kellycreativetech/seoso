@@ -1,3 +1,5 @@
+import { stegaClean } from "next-sanity";
+import { StegaText } from "@/components/text/StegaText";
 import { Container } from "@/components/ui/Container";
 import { SmartLink } from "@/components/ui/SmartLink";
 import { Logo } from "./SiteHeader";
@@ -33,7 +35,7 @@ export function SiteFooter({ settings }: { settings: Settings | null }) {
                     href={item.href}
                     className="link link-hover font-semibold tracking-[0.12em] text-neutral-content uppercase hover:text-primary"
                   >
-                    {item.label}
+                    <StegaText value={item.label} />
                   </SmartLink>
                 </li>
               ))}
@@ -44,7 +46,7 @@ export function SiteFooter({ settings }: { settings: Settings | null }) {
                     rel="noopener noreferrer"
                     className="link link-hover font-semibold tracking-[0.12em] text-neutral-content uppercase hover:text-primary"
                   >
-                    {socialLabels[social.platform ?? ""] ?? social.platform}
+                    {socialLabels[stegaClean(social.platform) ?? ""] ?? stegaClean(social.platform)}
                   </a>
                 </li>
               ))}

@@ -150,11 +150,11 @@ export const PAGE_SLUGS_QUERY = defineQuery(`
 `);
 
 export const UPCOMING_EVENTS_QUERY = defineQuery(`
-  *[_type == "event" && start >= now()] | order(start asc)[0...$limit]{ ${EVENT_SUMMARY} }
+  *[_type == "event" && start >= $now] | order(start asc)[0...$limit]{ ${EVENT_SUMMARY} }
 `);
 
 export const PAST_EVENTS_QUERY = defineQuery(`
-  *[_type == "event" && start < now()] | order(start desc)[0...$limit]{ ${EVENT_SUMMARY} }
+  *[_type == "event" && start < $now] | order(start desc)[0...$limit]{ ${EVENT_SUMMARY} }
 `);
 
 export const EVENT_QUERY = defineQuery(`

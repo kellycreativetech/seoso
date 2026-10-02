@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageBuilder } from "@/components/PageBuilder";
-import { client, fetchOptions } from "@/sanity/client";
+import { sanityFetch } from "@/sanity/live";
 import { buildMetadata } from "@/sanity/metadata";
 import { PAGE_QUERY } from "@/sanity/queries";
 
@@ -9,15 +9,15 @@ import { PAGE_QUERY } from "@/sanity/queries";
 // so they can sit alongside the /events/[slug] and /news/[slug] detail routes.
 export function listingPage(slug: "events" | "news") {
   async function generateMetadata(): Promise<Metadata> {
-    const page = await client.fetch(PAGE_QUERY, { slug }, fetchOptions);
+    const { data: page } = await sanityFetch({ query: PAGE_QUERY, params: { slug }, stega: false });
     if (!page) return {};
     return buildMetadata({ seo: page.seo, title: page.title });
   }
 
   async function Page() {
-    const page = await client.fetch(PAGE_QUERY, { slug }, fetchOptions);
+    const { data: page } = await sanityFetch({ query: PAGE_QUERY, params: { slug } });
     if (!page) notFound();
-    return <PageBuilder content={page.content} />;
+    return <PageBuilder documentId={page._id} content={page.content} />;
   }
 
   return { generateMetadata, Page };

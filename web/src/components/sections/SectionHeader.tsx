@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
+import type { StegaBranded } from "next-sanity";
 import type { HeadingText as HeadingTextValue } from "@/sanity/types";
 import { HeadingText } from "@/components/text/HeadingText";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 type Props = {
   eyebrow?: string | null;
-  heading?: HeadingTextValue | null;
+  heading?: HeadingTextValue | StegaBranded<HeadingTextValue> | null;
   headingId?: string;
   aside?: ReactNode;
 };

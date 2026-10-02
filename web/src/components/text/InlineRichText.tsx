@@ -1,4 +1,4 @@
-import { PortableText, type PortableTextComponents } from "next-sanity";
+import { PortableText, type PortableTextComponents, type StegaBranded } from "next-sanity";
 import type { InlineRichText as InlineRichTextValue } from "@/sanity/types";
 
 const components: PortableTextComponents = {
@@ -13,7 +13,9 @@ const components: PortableTextComponents = {
   },
 };
 
-export function InlineRichText({ value }: { value: InlineRichTextValue | null | undefined }) {
+type Value = InlineRichTextValue | StegaBranded<InlineRichTextValue> | null | undefined;
+
+export function InlineRichText({ value }: { value: Value }) {
   if (!value?.length) return null;
   return <PortableText value={value} components={components} />;
 }

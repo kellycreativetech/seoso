@@ -1,4 +1,6 @@
-import { client, fetchOptions } from "@/sanity/client";
+import { stegaClean } from "next-sanity";
+import { StegaText } from "@/components/text/StegaText";
+import { sanityFetch } from "@/sanity/live";
 import { SETTINGS_QUERY } from "@/sanity/queries";
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
@@ -7,7 +9,7 @@ import type { BlockOf } from "./types";
 const label = "text-small font-semibold tracking-[0.14em] text-secondary uppercase";
 
 export async function ContactSection({ _key, eyebrow, heading, intro, contacts, anchorId }: BlockOf<"contactSection">) {
-  const settings = await client.fetch(SETTINGS_QUERY, {}, fetchOptions);
+  const { data: settings } = await sanityFetch({ query: SETTINGS_QUERY });
   const headingId = `heading-${_key}`;
 
   return (
@@ -30,7 +32,9 @@ export async function ContactSection({ _key, eyebrow, heading, intro, contacts, 
         )}
         {contacts?.map((contact) => (
           <div key={contact._key} className="border-b border-base-300 py-6">
-            <h3 className={label}>{contact.purpose}</h3>
+            <h3 className={label}>
+              <StegaText value={contact.purpose} />
+            </h3>
             {contact.name && <p className="mt-2 font-serif text-lead">{contact.name}</p>}
             {contact.email && (
               <a href={`mailto:${contact.email}`} className="link link-secondary mt-1 inline-block break-all">
@@ -38,7 +42,10 @@ export async function ContactSection({ _key, eyebrow, heading, intro, contacts, 
               </a>
             )}
             {contact.phone && (
-              <a href={`tel:${contact.phone.replace(/[^0-9+]/g, "")}`} className="link link-secondary mt-1 block">
+              <a
+                href={`tel:${stegaClean(contact.phone).replace(/[^0-9+]/g, "")}`}
+                className="link link-secondary mt-1 block"
+              >
                 {contact.phone}
               </a>
             )}

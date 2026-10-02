@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { splitStega } from "@/sanity/stega";
 
 type Tone = "brand" | "brandOnLight" | "muted";
 
@@ -11,5 +12,11 @@ const tones: Record<Tone, string> = {
 
 // Small uppercase label above headings. `brand` is for black backgrounds.
 export function Eyebrow({ children, tone = "brandOnLight" }: { children: ReactNode; tone?: Tone }) {
-  return <p className={tones[tone]}>{children}</p>;
+  // Tracked label: keep stega out of the text (see sanity/stega.ts)
+  const { text, attr } = typeof children === "string" ? splitStega(children) : { text: children, attr: undefined };
+  return (
+    <p className={tones[tone]} data-sanity={attr}>
+      {text}
+    </p>
+  );
 }

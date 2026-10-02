@@ -1,5 +1,5 @@
 import { TextLink } from "@/components/ui/TextLink";
-import { client, fetchOptions } from "@/sanity/client";
+import { sanityFetch } from "@/sanity/live";
 import { LATEST_POSTS_QUERY } from "@/sanity/queries";
 import { PostFeature } from "./PostFeature";
 import { Section } from "./Section";
@@ -7,7 +7,7 @@ import { SectionHeader } from "./SectionHeader";
 import type { BlockOf } from "./types";
 
 export async function NewsSection({ _key, eyebrow, heading, limit, footerLink, anchorId }: BlockOf<"newsSection">) {
-  const posts = await client.fetch(LATEST_POSTS_QUERY, { limit: limit ?? 500 }, fetchOptions);
+  const { data: posts } = await sanityFetch({ query: LATEST_POSTS_QUERY, params: { limit: limit ?? 500 } });
   const headingId = `heading-${_key}`;
 
   return (

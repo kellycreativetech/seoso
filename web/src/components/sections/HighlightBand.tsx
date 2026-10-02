@@ -1,4 +1,5 @@
 import { HeadingText } from "@/components/text/HeadingText";
+import { StegaText } from "@/components/text/StegaText";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -16,7 +17,7 @@ export function HighlightBand({ _key, figure, eyebrow, heading, body, actions }:
               aria-hidden="true"
               className="font-serif text-[7rem] leading-[0.8] font-light tracking-[-0.04em] text-primary italic tabular-nums sm:text-[10rem] md:col-span-4 lg:text-figure"
             >
-              {figure}
+              <StegaText value={figure} />
             </p>
           )}
           <div className={figure ? "grid gap-5 md:col-span-8 md:col-start-5" : "grid gap-5 md:col-span-8"}>

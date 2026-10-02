@@ -1,0 +1,20 @@
+# Netlify builds the Next.js site in web/ (the Studio is hosted by Sanity, not Netlify).
+# Netlify detects Next.js and applies its adapter automatically (App Router, ISR, next/image, draft mode).
+[build]
+  base = "web"
+  command = "npm run build"
+  publish = "web/.next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Publishable Sanity values (also in web/.env.local). No secrets belong in this file.
+  NEXT_PUBLIC_SANITY_PROJECT_ID = "cerintdw"
+  NEXT_PUBLIC_SANITY_DATASET = "production"
+  # Click-to-edit links in the preview open the hosted Studio
+  NEXT_PUBLIC_SANITY_STUDIO_URL = "https://seoso.sanity.studio"
+  # SANITY_API_READ_TOKEN (viewer token for draft mode) is a secret: set in Netlify env vars, never here.
+
+# Declared explicitly: with the config at the repo root, Netlify's framework detection reads the root
+# package.json (no `next` there) and would skip the Next.js adapter, leaving every route a 404.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
