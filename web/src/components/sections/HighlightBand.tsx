@@ -5,12 +5,13 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SanityImage } from "@/components/ui/SanityImage";
 import type { BlockOf } from "./types";
 
-// Black band with an optional square figure image (e.g. a product cutout) beside the copy.
+// Band with an optional square figure image (e.g. a product cutout) beside the copy.
+// Its background (black or the page surface) comes from the tone PageBuilder gives it.
 export function HighlightBand({ _key, figure, eyebrow, heading, body, actions }: BlockOf<"highlightBand">) {
   const headingId = `heading-${_key}`;
   const hasFigure = Boolean(figure?.asset);
   return (
-    <section aria-labelledby={headingId} className="bg-neutral text-neutral-content">
+    <section aria-labelledby={headingId}>
       <Container>
         <div className="grid grid-cols-1 items-center gap-x-12 gap-y-6 py-16 sm:py-24 md:grid-cols-12">
           {hasFigure && (
@@ -30,11 +31,11 @@ export function HighlightBand({ _key, figure, eyebrow, heading, body, actions }:
             <h2 id={headingId} className="font-serif text-h3 font-light text-balance sm:text-h2">
               <HeadingText value={heading} />
             </h2>
-            {body && <p className="max-w-[48ch] text-neutral-content/85">{body}</p>}
+            {body && <p className="max-w-[48ch] text-base-content/85">{body}</p>}
             {actions?.length ? (
               <div className="mt-2 flex flex-wrap gap-4">
                 {actions.map((action, i) => (
-                  <ButtonLink key={action._key} href={action.href} variant={i === 0 ? "brand" : "outlineOnDark"}>
+                  <ButtonLink key={action._key} href={action.href} variant={i === 0 ? "brandOnBase" : "outlineOnBase"}>
                     {action.label}
                   </ButtonLink>
                 ))}

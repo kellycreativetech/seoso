@@ -1,5 +1,5 @@
 import {blockContent} from './objects/block-content'
-import {headingText} from './objects/heading-text'
+import {headingText, headingTextWithStrike} from './objects/heading-text'
 import {inlineRichText} from './objects/inline-rich-text'
 import {link} from './objects/link'
 import {navItem} from './objects/nav-item'
@@ -47,6 +47,7 @@ export const schemaTypes = [
   // Objects
   blockContent,
   headingText,
+  headingTextWithStrike,
   inlineRichText,
   link,
   navItem,

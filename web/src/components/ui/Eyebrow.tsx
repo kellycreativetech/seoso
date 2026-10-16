@@ -7,7 +7,7 @@ type Tone = "brand" | "brandOnLight" | "muted";
 const tones: Record<Tone, string> = {
   brand: "text-small font-semibold tracking-[0.14em] text-primary uppercase",
   brandOnLight: "text-small font-semibold tracking-[0.14em] text-secondary uppercase",
-  muted: "text-small font-semibold tracking-[0.14em] text-neutral-content/70 uppercase",
+  muted: "text-small font-semibold tracking-[0.14em] text-base-content/70 uppercase",
 };
 
 // Small uppercase label above headings. `brand` is for black backgrounds.

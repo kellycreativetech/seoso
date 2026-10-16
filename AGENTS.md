@@ -73,6 +73,11 @@ The homepage design is the reference for every page. It came from this brief —
 - **Body type:** Source Sans 3 — a humanist sans. 18px body.
 - Black "stage" sections (header, masthead, highlight bands, detail headers, footer) alternate with
   white content sections. Content sits on a 12-column measure, max width 74rem.
+- Page-builder section backgrounds are set in `PageBuilder.tsx`, not in the section components: a "stage" section's
+  wrapper gets `data-theme="seoso-dark"` + `bg-neutral`, which scopes the dark palette onto pure black so any
+  section's `base-*` colors read correctly on black. Default: masthead and highlight bands are stage. The home page
+  passes `rotateTones`: the first two sections are black, then base / black alternate. Sections that can land on
+  either tone (e.g. `HighlightBand`) must use `base-*` colors and the `brandOnBase` / `outlineOnBase` buttons.
 - Navigation mirrors the top level of seoso.org: Home, About SEOSO, Events, Contact, plus a Donate button.
 
 Implementation of those decisions:
@@ -215,7 +220,7 @@ if missing). Sanity MCP (`https://mcp.sanity.io`) is configured; pass `projectId
 - **Page sections** (`pageBuilder`): `hero` (masthead; image optional), `eventsSection` (upcoming/past, limit),
   `highlightBand` (big figure + CTA), `newsSection` (latest N posts), `textSection`, `peopleSection`,
   `contactSection` (pulls address/email from settings), `venuesSection`, `gallerySection`, `videoSection`.
-- **Objects:** `headingText` (one line, italic-only marks), `inlineRichText`, `blockContent`, `link`
+- **Objects:** `headingText` (one line, italic-only marks), `headingTextWithStrike` (adds strikethrough; highlight band only), `inlineRichText`, `blockContent`, `link`
   (internal ref to page/post/event or external/path/#anchor), `navItem` (link + dropdown children), `seo`.
 
 Adding a section type: schema in `studio/schemaTypes/blocks/<kebab-name>.ts` → register in `index.ts` and `page-builder.ts` →

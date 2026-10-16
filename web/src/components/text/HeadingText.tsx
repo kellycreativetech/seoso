@@ -1,9 +1,15 @@
 import { vercelStegaSplit } from "@vercel/stega";
 import { PortableText, type PortableTextComponents, type StegaBranded } from "next-sanity";
 import { splitStega } from "@/sanity/stega";
-import type { HeadingText as HeadingTextValue } from "@/sanity/types";
+import type { HeadingText as HeadingTextValue, HeadingTextWithStrike } from "@/sanity/types";
 
-type Value = HeadingTextValue | StegaBranded<HeadingTextValue> | null | undefined;
+type Value =
+  | HeadingTextValue
+  | StegaBranded<HeadingTextValue>
+  | HeadingTextWithStrike
+  | StegaBranded<HeadingTextWithStrike>
+  | null
+  | undefined;
 type Props = { value: Value; emphasisClassName?: string };
 
 // Renders a single-line heading value inline; the parent supplies the heading element.
@@ -12,7 +18,10 @@ export function HeadingText({ value, emphasisClassName = "italic" }: Props) {
   const { blocks, attr } = stripStega(value);
   const components: PortableTextComponents = {
     block: { normal: ({ children }) => <>{children}</> },
-    marks: { em: ({ children }) => <em className={emphasisClassName}>{children}</em> },
+    marks: {
+      em: ({ children }) => <em className={emphasisClassName}>{children}</em>,
+      "strike-through": ({ children }) => <s>{children}</s>,
+    },
   };
   const content = <PortableText value={blocks} components={components} />;
   return attr ? <span data-sanity={attr}>{content}</span> : content;

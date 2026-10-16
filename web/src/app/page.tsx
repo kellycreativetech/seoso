@@ -16,5 +16,5 @@ export default async function HomePage() {
   const { data: page } = await sanityFetch({ query: HOME_PAGE_QUERY });
   if (!page) notFound();
 
-  return <PageBuilder documentId={page._id} content={page.content} />;
+  return <PageBuilder documentId={page._id} content={page.content} rotateTones />;
 }

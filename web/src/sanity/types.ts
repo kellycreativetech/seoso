@@ -97,6 +97,21 @@ export type InlineRichText = Array<{
   _key: string;
 }>;
 
+export type HeadingTextWithStrike = Array<{
+  children?: Array<{
+    marks?: Array<string>;
+    text?: string;
+    _type: "span";
+    _key: string;
+  }>;
+  style?: "normal";
+  listItem?: never;
+  markDefs?: null;
+  level?: number;
+  _type: "block";
+  _key: string;
+}>;
+
 export type HeadingText = Array<{
   children?: Array<{
     marks?: Array<string>;
@@ -253,7 +268,7 @@ export type HighlightBand = {
     _type: "image";
   };
   eyebrow?: string;
-  heading?: HeadingText;
+  heading?: HeadingTextWithStrike;
   body?: string;
   actions?: Array<
     {
@@ -641,6 +656,7 @@ export type AllSanitySchemaTypes =
   | NavItem
   | Link
   | InlineRichText
+  | HeadingTextWithStrike
   | HeadingText
   | BlockContent
   | VideoSection
@@ -923,7 +939,7 @@ export type HOME_PAGE_QUERY_RESULT = {
           crop: SanityImageCrop | null;
         } | null;
         eyebrow: string | null;
-        heading: HeadingText | null;
+        heading: HeadingTextWithStrike | null;
         body: string | null;
         actions: Array<{
           _key: string;
@@ -1148,7 +1164,7 @@ export type PAGE_QUERY_RESULT = {
           crop: SanityImageCrop | null;
         } | null;
         eyebrow: string | null;
-        heading: HeadingText | null;
+        heading: HeadingTextWithStrike | null;
         body: string | null;
         actions: Array<{
           _key: string;

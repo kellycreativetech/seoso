@@ -28,7 +28,16 @@ export const highlightBand = defineType({
         }),
       ],
     }),
-    ...sectionHeaderFields,
+    ...sectionHeaderFields.map((field) =>
+      field.name === 'heading'
+        ? defineField({
+            name: 'heading',
+            type: 'headingTextWithStrike',
+            description:
+              'Select words and press ⌘I to set them in italics, or use the strikethrough button to cross them out.',
+          })
+        : field,
+    ),
     defineField({name: 'body', type: 'text', rows: 3}),
     defineField({
       name: 'actions',
