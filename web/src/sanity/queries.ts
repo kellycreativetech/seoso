@@ -1,7 +1,7 @@
 import { defineQuery } from "next-sanity";
 
 const IMAGE = /* groq */ `
-  asset->{ _id, metadata { lqip, dimensions { width, height } } },
+  asset->{ _id, metadata { lqip, hasAlpha, dimensions { width, height } } },
   alt,
   hotspot,
   crop
@@ -88,7 +88,7 @@ const PAGE_FIELDS = /* groq */ `
       disclaimer,
       anchorId
     },
-    _type == "highlightBand" => { figure, eyebrow, heading, body, actions[]{ ${LINK} } },
+    _type == "highlightBand" => { figure { ${IMAGE} }, eyebrow, heading, body, actions[]{ ${LINK} } },
     _type == "newsSection" => { eyebrow, heading, limit, footerLink { ${LINK} }, anchorId },
     _type == "textSection" => { eyebrow, heading, body, anchorId },
     _type == "peopleSection" => {

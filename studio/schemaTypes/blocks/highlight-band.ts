@@ -10,9 +10,23 @@ export const highlightBand = defineType({
   fields: [
     defineField({
       name: 'figure',
-      type: 'string',
-      description: 'Optional large figure, e.g. "50". Keep it to a few characters.',
-      validation: (rule) => rule.max(4),
+      type: 'image',
+      description:
+        'Optional square image beside the copy, e.g. a product cutout. A transparent PNG reads best on the black band.',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alternative text',
+          type: 'string',
+          description: 'Describe what the image shows.',
+          validation: (rule) =>
+            rule.custom((alt, context) => {
+              const figure = context.parent as {asset?: unknown} | undefined
+              return figure?.asset && !alt ? 'Alternative text is required' : true
+            }),
+        }),
+      ],
     }),
     ...sectionHeaderFields,
     defineField({name: 'body', type: 'text', rows: 3}),
@@ -24,12 +38,12 @@ export const highlightBand = defineType({
     }),
   ],
   preview: {
-    select: {heading: 'heading', figure: 'figure'},
-    prepare({heading, figure}) {
+    select: {heading: 'heading', media: 'figure'},
+    prepare({heading, media}) {
       return {
         title: headingPreview(heading) || 'Untitled',
-        subtitle: `Highlight band${figure ? ` · ${figure}` : ''}`,
-        media: SparklesIcon,
+        subtitle: 'Highlight band',
+        media: media ?? SparklesIcon,
       }
     },
   },

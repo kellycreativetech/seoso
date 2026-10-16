@@ -7,6 +7,7 @@ export type SanityImageValue = {
     _id: string;
     metadata: {
       lqip: string | null;
+      hasAlpha: boolean | null;
       dimensions: { width: number | null; height: number | null } | null;
     } | null;
   } | null;
@@ -28,7 +29,8 @@ type Props = {
 export function SanityImage({ value, width, height, className, priority, sizes, loading }: Props) {
   if (!value?.asset) return null;
   const { asset, alt, hotspot, crop } = value;
-  const lqip = asset.metadata?.lqip;
+  // The LQIP flattens transparency, so a cutout would flash as a blurry box while loading.
+  const lqip = asset.metadata?.hasAlpha ? null : asset.metadata?.lqip;
 
   return (
     <Image

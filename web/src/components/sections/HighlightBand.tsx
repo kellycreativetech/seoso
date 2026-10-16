@@ -1,26 +1,31 @@
 import { HeadingText } from "@/components/text/HeadingText";
-import { StegaText } from "@/components/text/StegaText";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { SanityImage } from "@/components/ui/SanityImage";
 import type { BlockOf } from "./types";
 
-// Black band with an oversized italic figure (e.g. "50") beside the copy.
+// Black band with an optional square figure image (e.g. a product cutout) beside the copy.
 export function HighlightBand({ _key, figure, eyebrow, heading, body, actions }: BlockOf<"highlightBand">) {
   const headingId = `heading-${_key}`;
+  const hasFigure = Boolean(figure?.asset);
   return (
     <section aria-labelledby={headingId} className="bg-neutral text-neutral-content">
       <Container>
         <div className="grid grid-cols-1 items-center gap-x-12 gap-y-6 py-16 sm:py-24 md:grid-cols-12">
-          {figure && (
-            <p
-              aria-hidden="true"
-              className="font-serif text-[7rem] leading-[0.8] font-light tracking-[-0.04em] text-primary italic tabular-nums sm:text-[10rem] md:col-span-4 lg:text-figure"
-            >
-              <StegaText value={figure} />
-            </p>
+          {hasFigure && (
+            <div className="mx-auto w-full max-w-sm md:col-span-5 md:max-w-none">
+              <SanityImage
+                value={figure}
+                width={800}
+                height={800}
+                sizes="(min-width: 74rem) 28rem, (min-width: 48rem) 40vw, 24rem"
+                loading="lazy"
+                className="aspect-square h-auto w-full object-contain"
+              />
+            </div>
           )}
-          <div className={figure ? "grid gap-5 md:col-span-8 md:col-start-5" : "grid gap-5 md:col-span-8"}>
+          <div className={hasFigure ? "grid gap-5 md:col-span-7 md:col-start-6" : "grid gap-5 md:col-span-8"}>
             {eyebrow && <Eyebrow tone="muted">{eyebrow}</Eyebrow>}
             <h2 id={headingId} className="font-serif text-h3 font-light text-balance sm:text-h2">
               <HeadingText value={heading} />
