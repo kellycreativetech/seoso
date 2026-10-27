@@ -6,8 +6,8 @@ backend:
   name: github
   repo: kellycreativetech/seoso
   branch: main
-  # Sveltia CMS Authenticator (Cloudflare Worker). Set after it's deployed; see site/README.md.
-  base_url: https://sveltia-cms-auth.REPLACE-ME.workers.dev
+  # Sveltia CMS Authenticator (Cloudflare Worker, repo kellycreativetech/sveltia-cms-auth); see site/README.md.
+  base_url: https://sveltia-cms-auth.kasey-db7.workers.dev
 
 publish_mode: simple
 # Leave untouched optional fields out of the files instead of saving them as "".
