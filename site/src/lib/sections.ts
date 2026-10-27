@@ -69,7 +69,7 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
       intro: text,
       contacts: z.array(z.object({ purpose: z.string(), name: text, email: text, phone: text })).default([]),
     }),
-    z.object({ type: z.literal("venues"), ...header, intro: text }),
+    z.object({ type: z.literal("venues"), ...header, intro: text, venues: z.array(z.string()).default([]) }),
     z.object({
       type: z.literal("gallery"),
       ...header,

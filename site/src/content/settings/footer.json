@@ -1,0 +1,24 @@
+{
+  "links": [
+    {
+      "label": "Home",
+      "page": "home"
+    },
+    {
+      "label": "About SEOSO",
+      "page": "about"
+    },
+    {
+      "label": "Events",
+      "page": "events"
+    },
+    {
+      "label": "News",
+      "page": "news"
+    },
+    {
+      "label": "Contact",
+      "page": "contact"
+    }
+  ]
+}

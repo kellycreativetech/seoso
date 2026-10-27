@@ -11,7 +11,7 @@ const minimal: Record<(typeof SECTION_TYPES)[number], object> = {
   richText: { body: "Text" },
   people: { people: [{ name: "Ann" }] },
   contacts: { contacts: [{ purpose: "Booking" }] },
-  venues: {},
+  venues: { venues: ["john-mcintire-library"] },
   gallery: { images: [img] },
   video: { videos: [{ youtubeId: "abc", title: "Clip" }] },
   textMedia: { body: "Text", mediaSide: "left", media: { kind: "image", image: img } },
@@ -33,6 +33,10 @@ describe("section schema", () => {
   });
   test("text + media only goes left or right", () => {
     expect(previewSectionSchema.safeParse({ type: "textMedia", body: "x", mediaSide: "top" }).success).toBe(false);
+  });
+  test("a venues block keeps its chosen venues in order", () => {
+    const parsed = previewSectionSchema.parse({ type: "venues", venues: ["b", "a"] });
+    expect(parsed.type === "venues" && parsed.venues).toEqual(["b", "a"]);
   });
   test("an unknown block type is rejected", () => {
     expect(previewSectionSchema.safeParse({ type: "marquee" }).success).toBe(false);

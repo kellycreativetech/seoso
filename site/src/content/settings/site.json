@@ -1,0 +1,24 @@
+{
+  "title": "SEOSO",
+  "organizationName": "Southeastern Ohio Symphony Orchestra",
+  "tagline": "Music for All",
+  "description": "The Southeastern Ohio Symphony Orchestra brings free concerts to libraries, chapels and museums across Muskingum and Guernsey counties.",
+  "logo": {
+    "src": "../../assets/uploads/logo-89c80106.png",
+    "alt": "SEOSO"
+  },
+  "defaultSeoImage": "../../assets/uploads/masthead-cf9364dc.webp",
+  "homePage": "home",
+  "donateLink": {
+    "label": "Donate",
+    "page": "donate"
+  },
+  "mailingAddress": "P.O. Box 42\nNew Concord, Ohio 43762",
+  "email": "info@seoso.org",
+  "social": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/profile.php?id=100063471160080"
+    }
+  ]
+}

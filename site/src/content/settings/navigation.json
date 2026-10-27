@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "label": "Home",
+      "page": "home"
+    },
+    {
+      "label": "About SEOSO",
+      "page": "about",
+      "children": [
+        {
+          "label": "Our story",
+          "page": "about"
+        },
+        {
+          "label": "Board of Directors",
+          "page": "board-of-directors"
+        },
+        {
+          "label": "Awards & Accolades",
+          "page": "awards-and-accolades"
+        },
+        {
+          "label": "Symphony in Action",
+          "page": "symphony-in-action"
+        },
+        {
+          "label": "Videos",
+          "page": "videos"
+        }
+      ]
+    },
+    {
+      "label": "Events",
+      "page": "events",
+      "children": [
+        {
+          "label": "Season schedule",
+          "page": "events"
+        },
+        {
+          "label": "Venues & directions",
+          "page": "directions"
+        }
+      ]
+    },
+    {
+      "label": "Contact",
+      "page": "contact"
+    }
+  ]
+}
