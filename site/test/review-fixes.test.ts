@@ -51,3 +51,14 @@ describe("SITE_URL", () => {
     expect(siteUrl({})).toBe("http://localhost:4321");
   });
 });
+
+test("the build time is read when the first page renders, not when the module loads", async () => {
+  // Cloudflare's runtime (where Astro prerenders) reports 1970 for code that runs at module load.
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("1970-01-01T00:00:00Z"));
+  vi.resetModules();
+  const { buildNow: freshBuildNow } = await import("../src/lib/now");
+  vi.setSystemTime(new Date("2026-10-27T05:00:00Z"));
+  expect(freshBuildNow(true).toISOString()).toBe("2026-10-27T05:00:00.000Z");
+  vi.useRealTimers();
+});
