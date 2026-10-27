@@ -3,7 +3,13 @@
 Website for the **Southeastern Ohio Symphony Orchestra** (SEOSO). A monorepo with a standalone
 Sanity Studio and a Next.js frontend styled with daisyUI 5 on Tailwind CSS 4.
 
-Read this whole file before changing anything. `web/AGENTS.md` adds Next.js-version rules that also apply.
+Read this whole file before changing anything.
+
+> **New stack in progress (branch `sveltia`):** `site/` is the replacement — Astro + Sveltia CMS on Cloudflare
+> Workers, content in `site/src/content/`. Read `site/README.md` before working there; the Sanity/Next.js rules
+> below apply to `web/` and `studio/` only. Design system and daisyUI rules apply to both (Blueprint
+> `projectRoot` for the new site: `/Users/kaseykelly/Sites/seoso/site`).
+ `web/AGENTS.md` adds Next.js-version rules that also apply.
 
 ## Layout
 
