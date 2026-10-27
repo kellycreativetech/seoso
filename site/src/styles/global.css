@@ -1,0 +1,119 @@
+@import "tailwindcss";
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
+@import "@fontsource-variable/source-sans-3/wght.css";
+@import "@fontsource-variable/source-sans-3/wght-italic.css";
+
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+/* SEOSO: black, white and the logo blue. Square corners, no depth or glass. */
+@plugin "daisyui/theme" {
+  name: "seoso";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f4f6f7;
+  --color-base-300: #dfe3e6;
+  --color-base-content: #0a0a0a;
+  --color-primary: #13a9e1;
+  --color-primary-content: #000000;
+  --color-secondary: #0a6d93;
+  --color-secondary-content: #ffffff;
+  --color-accent: #13a9e1;
+  --color-accent-content: #000000;
+  --color-neutral: #000000;
+  --color-neutral-content: #ffffff;
+  --color-info: #0a6d93;
+  --color-info-content: #ffffff;
+  --color-success: #1f7a4d;
+  --color-success-content: #ffffff;
+  --color-warning: #b26b00;
+  --color-warning-content: #ffffff;
+  --color-error: #b3261e;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 0rem;
+  --radius-field: 0rem;
+  --radius-box: 0rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.28125rem;
+
+  --border: 1.5px;
+
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "seoso-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #0b0c0d;
+  --color-base-200: #141618;
+  --color-base-300: #262a2d;
+  --color-base-content: #f4f6f7;
+  --color-primary: #13a9e1;
+  --color-primary-content: #000000;
+  --color-secondary: #3dbdee;
+  --color-secondary-content: #000000;
+  --color-accent: #13a9e1;
+  --color-accent-content: #000000;
+  --color-neutral: #000000;
+  --color-neutral-content: #ffffff;
+  --color-info: #3dbdee;
+  --color-info-content: #000000;
+  --color-success: #4cc38a;
+  --color-success-content: #000000;
+  --color-warning: #f0b14a;
+  --color-warning-content: #000000;
+  --color-error: #f2726a;
+  --color-error-content: #000000;
+
+  --radius-selector: 0rem;
+  --radius-field: 0rem;
+  --radius-box: 0rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.28125rem;
+
+  --border: 1.5px;
+
+  --depth: 0;
+  --noise: 0;
+}
+
+/* Fonts are self-hosted via Fontsource (imported above) */
+@theme {
+  --font-serif: "Newsreader Variable", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: "Source Sans 3 Variable", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Major-third type scale on an 18px body */
+@theme {
+  --text-small: 0.889rem;
+  --text-small--line-height: 1.5;
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.6;
+  --text-lead: 1.406rem;
+  --text-lead--line-height: 1.45;
+  --text-title: 1.758rem;
+  --text-title--line-height: 1.15;
+  --text-h3: 2.197rem;
+  --text-h3--line-height: 1.1;
+  --text-h2: 2.747rem;
+  --text-h2--line-height: 1.1;
+  --text-h1: 3.433rem;
+  --text-h1--line-height: 1;
+  --text-display: 5.4rem;
+  --text-display--line-height: 1;
+  --text-figure: 13rem;
+  --text-figure--line-height: 0.8;
+}
