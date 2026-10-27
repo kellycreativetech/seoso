@@ -1,5 +1,5 @@
 import { z } from "astro/zod";
-import { linkSchema, previewSectionSchema, type Section } from "./sections";
+import { blankToNull, previewSectionSchema, type Section } from "./sections";
 
 // Validates CMS entry data for the live preview. Never throws: a half-filled block is skipped and counted.
 const text = z.string().nullish();
@@ -7,11 +7,11 @@ const eventSchema = z.object({
   title: z.string().min(1),
   isNamedProgram: z.boolean().nullish(),
   start: z.coerce.date(),
-  end: z.coerce.date().nullish(),
+  end: z.preprocess(blankToNull, z.coerce.date().nullish()),
   venue: text,
   summary: text,
   admission: text,
-  tickets: linkSchema.nullish(),
+  tickets: text,
   body: text,
 });
 const postSchema = z.object({

@@ -90,7 +90,7 @@ for (const e of byType("event")) {
       venue: e.venue && refs.get(e.venue._ref)?.slug,
       summary: e.summary,
       admission: e.admission,
-      tickets: e.ticketUrl && { label: "Tickets", href: e.ticketUrl },
+      tickets: e.ticketUrl,
       image: transformImage(e.image, ctx),
       seo: seo(e.seo),
     },

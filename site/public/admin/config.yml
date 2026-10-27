@@ -1,0 +1,626 @@
+# Sveltia CMS for the SEOSO site. Paths are relative to the repository root (the site lives in site/).
+# Field names must match the content schemas in site/src/lib/sections.ts and site/src/content.config.ts
+# (site/test/cms-config.test.ts checks the page blocks).
+
+backend:
+  name: github
+  repo: kellycreativetech/seoso
+  branch: sveltia
+  # Sveltia CMS Authenticator (Cloudflare Worker). Set after it's deployed; see site/README.md.
+  base_url: https://sveltia-cms-auth.REPLACE-ME.workers.dev
+
+publish_mode: simple
+# Uploads live in site/src/assets/uploads so Astro optimizes them. Each collection below stores image paths
+# relative to its own folder (src/content/<collection>/ → ../../assets/uploads), which is what Astro's image()
+# expects; the top-level values (which must be absolute) are only used by the media library.
+media_folder: /site/src/assets/uploads
+public_folder: /site/src/assets/uploads
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+# ---------------------------------------------------------------------------------------------------------------
+# Reusable field definitions (YAML anchors)
+# ---------------------------------------------------------------------------------------------------------------
+x-fields:
+  anchorId: &anchorId
+    name: anchorId
+    label: Anchor ID
+    widget: string
+    required: false
+    hint: Optional. Lets links jump to this block, e.g. "season" for a link to "#season".
+    pattern: ['^[a-z0-9-]*$', 'Use lowercase letters, numbers and hyphens']
+  eyebrow: &eyebrow
+    name: eyebrow
+    label: Eyebrow
+    widget: string
+    required: false
+    hint: Small uppercase label above the heading.
+  heading: &heading
+    name: heading
+    label: Heading
+    widget: string
+    required: false
+    hint: Wrap words in *asterisks* to set them in italics, or in ~~tildes~~ to strike them through.
+  headingRequired: &headingRequired
+    name: heading
+    label: Heading
+    widget: string
+    hint: Wrap words in *asterisks* to set them in italics, or in ~~tildes~~ to strike them through.
+  intro: &intro
+    name: intro
+    label: Note beside the heading
+    widget: text
+    required: false
+  linkFields: &linkFields
+    - { name: label, label: Label, widget: string }
+    - name: page
+      label: Page on this site
+      widget: relation
+      collection: pages
+      required: false
+      hint: Pick a page, or leave empty and type a link below.
+    - name: href
+      label: Or a link
+      widget: string
+      required: false
+      hint: A site path (/events), an anchor (#season), an email (mailto:…) or a full web address (https://…).
+  buttons: &buttons
+    name: buttons
+    label: Buttons
+    widget: list
+    required: false
+    max: 2
+    collapsed: auto
+    summary: '{{fields.label}}'
+    hint: Up to two. The first is the blue button.
+    fields: *linkFields
+  imageFields: &imageFields
+    - { name: src, label: Image, widget: image }
+    - name: alt
+      label: Alternative text
+      widget: string
+      required: false
+      hint: Describe the image for people who can't see it. Leave empty if it's purely decorative.
+  image: &image
+    name: image
+    label: Image
+    widget: object
+    required: false
+    summary: '{{fields.alt}}'
+    fields: *imageFields
+  seo: &seo
+    name: seo
+    label: Search and sharing
+    widget: object
+    required: false
+    collapsed: true
+    fields:
+      - { name: title, label: Title in search results, widget: string, required: false, hint: Defaults to the page title. }
+      - { name: description, label: Description, widget: text, required: false }
+      - { name: image, label: Sharing image, widget: image, required: false, hint: Shown when the page is shared. 1200×630 works best. }
+      - { name: noIndex, label: Hide from search engines, widget: boolean, default: false, required: false }
+
+  # Page blocks, shared by Pages and Snippets. Order matches SECTION_TYPES in src/lib/sections.ts.
+  sections: &sections
+    name: sections
+    label: Page blocks
+    label_singular: Block
+    widget: list
+    typeKey: type
+    collapsed: auto
+    hint: Blocks appear on the page in this order. Drag to reorder.
+    types:
+      - name: hero
+        label: Masthead
+        description: Black banner with a big heading, short lead and buttons. Usually the first block.
+        summary: 'Masthead · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *headingRequired
+          - { name: lead, label: Lead, widget: text, required: false }
+          - *buttons
+          - { name: image, label: Photo, widget: object, required: false, summary: "{{fields.alt}}", fields: *imageFields, hint: Optional wide photo that fades into the black banner. }
+          - *anchorId
+      - name: eventsList
+        label: Events list
+        description: Upcoming or past concerts, in the programme layout.
+        summary: 'Events · {{fields.scope}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - { name: note, label: Note beside the heading, required: false, widget: richtext, buttons: [bold, italic, link], editor_components: [] }
+          - name: scope
+            label: Show
+            widget: select
+            default: upcoming
+            options:
+              - { label: Upcoming concerts, value: upcoming }
+              - { label: Past concerts, value: past }
+          - { name: limit, label: How many, widget: number, value_type: int, min: 1, required: false, hint: Leave empty to show all. }
+          - { name: footerLink, label: Link below the list, widget: object, required: false, fields: *linkFields }
+          - { name: disclaimer, label: Small print, widget: string, required: false }
+          - *anchorId
+      - name: highlightBand
+        label: Highlight band
+        description: A bold band with an optional square image (e.g. a product photo) and buttons.
+        summary: 'Highlight · {{fields.heading}}'
+        fields:
+          - { name: figure, label: Square image, widget: object, required: false, summary: "{{fields.alt}}", fields: *imageFields, hint: A transparent PNG reads best. }
+          - *eyebrow
+          - *headingRequired
+          - { name: body, label: Text, widget: text, required: false }
+          - *buttons
+          - *anchorId
+      - name: newsList
+        label: News list
+        description: The latest news posts.
+        summary: 'News · {{fields.limit}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - { name: limit, label: How many, widget: number, value_type: int, min: 1, default: 3 }
+          - { name: footerLink, label: Link below the list, widget: object, required: false, fields: *linkFields }
+          - *anchorId
+      - name: richText
+        label: Text
+        description: Paragraphs of text with optional subheadings, lists and links.
+        summary: 'Text · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - { name: body, label: Text, widget: richtext, buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list, quote], editor_components: [] }
+          - *anchorId
+      - name: people
+        label: People
+        description: A grid of names and roles, e.g. the board.
+        summary: 'People · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - *intro
+          - name: people
+            label: People
+            widget: list
+            collapsed: auto
+            summary: '{{fields.name}} · {{fields.role}}'
+            fields:
+              - { name: name, label: Name, widget: string }
+              - { name: role, label: Role, widget: string, required: false }
+              - { name: email, label: Email, widget: string, required: false }
+          - *anchorId
+      - name: contacts
+        label: Contacts
+        description: Who to contact, plus the mailing address from Site settings.
+        summary: 'Contacts · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - *intro
+          - name: contacts
+            label: Contacts
+            widget: list
+            collapsed: auto
+            summary: '{{fields.purpose}}'
+            fields:
+              - { name: purpose, label: For, widget: string, hint: e.g. Booking, General inquiries }
+              - { name: name, label: Name, widget: string, required: false }
+              - { name: email, label: Email, widget: string, required: false }
+              - { name: phone, label: Phone, widget: string, required: false }
+          - *anchorId
+      - name: venues
+        label: Venues
+        description: Chosen venues with addresses and directions.
+        summary: 'Venues · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - *intro
+          - name: venues
+            label: Venues
+            widget: relation
+            collection: venues
+            multiple: true
+            display_fields: [name]
+            search_fields: [name, city]
+            hint: Shown in the order you pick them.
+          - *anchorId
+      - name: gallery
+        label: Photo gallery
+        description: A grid of photos with optional captions.
+        summary: 'Gallery · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - *intro
+          - name: images
+            label: Photos
+            widget: list
+            collapsed: auto
+            summary: '{{fields.alt}}'
+            fields:
+              - { name: src, label: Photo, widget: image }
+              - { name: alt, label: Alternative text, widget: string, required: false }
+              - { name: caption, label: Caption, widget: string, required: false }
+          - *anchorId
+      - name: video
+        label: Videos
+        description: YouTube videos in a two-column grid.
+        summary: 'Videos · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - *intro
+          - name: videos
+            label: Videos
+            widget: list
+            collapsed: auto
+            summary: '{{fields.title}}'
+            fields:
+              - { name: youtubeId, label: YouTube video ID, widget: string, hint: 'The code after "v=" in the YouTube address, e.g. Wvj1FS44Jok.' }
+              - { name: title, label: Title, widget: string }
+              - { name: description, label: Description, widget: text, required: false }
+          - *anchorId
+      - name: textMedia
+        label: Text + Media
+        description: A few paragraphs with an image or video beside them (one-third width). Stacks on phones.
+        summary: 'Text + Media · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - { name: body, label: Text, widget: richtext, buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list, quote], editor_components: [] }
+          - *buttons
+          - name: mediaSide
+            label: Media on the
+            widget: select
+            default: right
+            options:
+              - { label: Right, value: right }
+              - { label: Left, value: left }
+          - name: media
+            label: Image or video
+            widget: object
+            required: false
+            fields:
+              - name: kind
+                label: Type
+                widget: select
+                required: false
+                options:
+                  - { label: Image, value: image }
+                  - { label: YouTube video, value: video }
+              - { name: image, label: Image, widget: object, required: false, summary: "{{fields.alt}}", fields: *imageFields, hint: Used when Type is Image. }
+              - { name: youtubeId, label: YouTube video ID, widget: string, required: false, hint: Used when Type is YouTube video. }
+              - { name: title, label: Video title, widget: string, required: false }
+          - *anchorId
+      - name: cardGrid
+        label: Card grid
+        description: Two to four columns of cards with an image, title, text and link.
+        summary: 'Cards · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - *intro
+          - name: columns
+            label: Columns
+            widget: select
+            default: 3
+            options:
+              - { label: '2', value: 2 }
+              - { label: '3', value: 3 }
+              - { label: '4', value: 4 }
+          - name: cards
+            label: Cards
+            widget: list
+            collapsed: auto
+            summary: '{{fields.title}}'
+            fields:
+              - { name: title, label: Title, widget: string }
+              - { name: text, label: Text, widget: text, required: false }
+              - *image
+              - { name: link, label: Link, widget: object, required: false, fields: *linkFields }
+          - *anchorId
+      - name: testimonials
+        label: Testimonials
+        description: One to three quotes from listeners, musicians or partners.
+        summary: 'Testimonials · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - name: quotes
+            label: Quotes
+            widget: list
+            min: 1
+            max: 3
+            collapsed: auto
+            summary: '{{fields.name}}'
+            fields:
+              - { name: quote, label: Quote, widget: text }
+              - { name: name, label: Name, widget: string }
+              - { name: role, label: Role or town, widget: string, required: false }
+              - { name: photo, label: Photo, widget: object, required: false, summary: "{{fields.alt}}", fields: *imageFields }
+          - *anchorId
+      - name: ctaBand
+        label: Call to action
+        description: A short line with up to two buttons, e.g. "Keep the music free — Donate".
+        summary: 'Call to action · {{fields.heading}}'
+        fields:
+          - *headingRequired
+          - { name: text, label: Text, widget: string, required: false }
+          - *buttons
+          - *anchorId
+      - name: faq
+        label: Questions & answers
+        description: Questions that open to show their answers.
+        summary: 'FAQ · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - name: items
+            label: Questions
+            widget: list
+            collapsed: auto
+            summary: '{{fields.question}}'
+            fields:
+              - { name: question, label: Question, widget: string }
+              - { name: answer, label: Answer, widget: richtext, buttons: [bold, italic, link, bulleted-list], editor_components: [] }
+          - *anchorId
+      - name: stats
+        label: Figures
+        description: Two to four big numbers with short labels.
+        summary: 'Figures · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - name: stats
+            label: Figures
+            widget: list
+            min: 2
+            max: 4
+            collapsed: auto
+            summary: '{{fields.value}} {{fields.label}}'
+            fields:
+              - { name: value, label: Number, widget: string, hint: 'e.g. 50, 5, 1977' }
+              - { name: label, label: Label, widget: string }
+          - *anchorId
+      - name: logos
+        label: Sponsors & partners
+        description: A row of logos, each optionally linked.
+        summary: 'Logos · {{fields.heading}}'
+        fields:
+          - *eyebrow
+          - *heading
+          - name: logos
+            label: Logos
+            widget: list
+            collapsed: auto
+            summary: '{{fields.name}}'
+            fields:
+              - { name: name, label: Name, widget: string, hint: Also used as the logo's alternative text. }
+              - { name: image, label: Logo, widget: object, fields: *imageFields }
+              - { name: href, label: Website, widget: string, required: false }
+          - *anchorId
+      - name: snippet
+        label: Snippet
+        description: Insert a reusable snippet (edited under Snippets) here.
+        summary: 'Snippet · {{fields.snippet}}'
+        fields:
+          - name: snippet
+            label: Snippet
+            widget: relation
+            collection: snippets
+            display_fields: [name]
+            search_fields: [name]
+          - *anchorId
+
+# ---------------------------------------------------------------------------------------------------------------
+# Collections
+# ---------------------------------------------------------------------------------------------------------------
+collections:
+  - name: pages
+    label: Pages
+    label_singular: Page
+    description: Pages built from blocks. The home page, Events and News pages are here too.
+    folder: site/src/content/pages
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      template: '{{slug}}'
+      editable: [create]
+      hint: The page address, e.g. "about" for /about. It can't be changed after the page is created.
+    preview_path: '/{{slug}}'
+    summary: '{{title}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - *seo
+      - *sections
+
+  - name: events
+    label: Events
+    label_singular: Event
+    description: Concerts and other events. They move from “upcoming” to “past” the day after they end.
+    folder: site/src/content/events
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      template: '{{slug}}'
+      editable: [create]
+      hint: The event address, e.g. "holiday-concert-2026-12-08". Adding the date keeps addresses unique.
+    preview_path: '/events/{{slug}}'
+    sortable_fields:
+      fields: [start, title]
+      default: { field: start, direction: descending }
+    summary: '{{title}} · {{start | date("MMM D, YYYY")}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: isNamedProgram, label: Named program, widget: boolean, default: false, required: false, hint: Program titles are set in italics. }
+      - { name: start, label: Starts, widget: datetime, input_timezone: America/New_York, output_utc: true, hint: Eastern time. }
+      - { name: end, label: Ends, widget: datetime, input_timezone: America/New_York, output_utc: true, required: false, hint: Optional. Eastern time. }
+      - name: venue
+        label: Venue
+        widget: relation
+        collection: venues
+        required: false
+        display_fields: [name]
+        search_fields: [name, city]
+      - { name: summary, label: Summary, widget: text, required: false, hint: One or two sentences shown in event lists. }
+      - { name: admission, label: Admission, widget: string, required: false, hint: e.g. Free }
+      - { name: tickets, label: Ticket link, widget: string, required: false, hint: A full web address. Shows a “Get tickets” button until the event has passed. }
+      - *image
+      - *seo
+      - { name: body, label: Details, required: false, widget: richtext, buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list, quote], editor_components: [] }
+
+  - name: news
+    label: News
+    label_singular: Post
+    folder: site/src/content/news
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      template: '{{slug}}'
+      editable: [create]
+    preview_path: '/news/{{slug}}'
+    sortable_fields:
+      fields: [date, title]
+      default: { field: date, direction: descending }
+    summary: '{{title}} · {{date | date("MMM D, YYYY")}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: datetime, input_timezone: America/New_York, output_utc: true }
+      - { name: excerpt, label: Excerpt, widget: text, required: false, hint: Shown large at the top and in news lists. }
+      - { name: summary, label: Summary, required: false, widget: richtext, buttons: [bold, italic, link], editor_components: [] }
+      - name: facts
+        label: Key facts
+        widget: list
+        required: false
+        collapsed: auto
+        summary: '{{fields.label}} {{fields.value}}'
+        hint: Short label/value pairs, e.g. Tickets — $20.
+        fields:
+          - { name: label, label: Label, widget: string }
+          - { name: value, label: Value, widget: string }
+      - *image
+      - *seo
+      - { name: body, label: Post, widget: richtext, buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list, quote], editor_components: [] }
+
+  - name: venues
+    label: Venues
+    label_singular: Venue
+    folder: site/src/content/venues
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: name
+    slug: '{{slug}}'
+    summary: '{{name}} · {{city}}'
+    fields:
+      - { name: name, label: Name, widget: string }
+      - { name: city, label: City, widget: string }
+      - { name: address, label: Address, widget: text, required: false }
+      - { name: directions, label: Directions, widget: text, required: false }
+      - { name: website, label: Website, widget: string, required: false }
+      - *image
+
+  - name: snippets
+    label: Snippets
+    label_singular: Snippet
+    description: Reusable groups of blocks (like a donation appeal) to insert on several pages with the Snippet block.
+    folder: site/src/content/snippets
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: name
+    slug: '{{slug}}'
+    fields:
+      - { name: name, label: Name, widget: string }
+      - *sections
+
+  - name: settings
+    label: Site settings
+    description: Navigation, footer, contact details and other site-wide settings.
+    editor:
+      preview: false
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    files:
+      - name: site
+        label: Site & contact details
+        file: site/src/content/settings/site.json
+        fields:
+          - { name: title, label: Short name, widget: string, hint: Used in page titles, e.g. “SEOSO”. }
+          - { name: organizationName, label: Full name, widget: string, required: false }
+          - { name: tagline, label: Tagline, widget: string, required: false }
+          - { name: description, label: Description for search engines, widget: text, required: false }
+          - { name: logo, label: Logo, widget: object, required: false, fields: *imageFields, hint: Shown on black, so use a light logo. }
+          - { name: defaultSeoImage, label: Default sharing image, widget: image, required: false }
+          - name: homePage
+            label: Home page
+            widget: relation
+            collection: pages
+            default: home
+          - { name: donateLink, label: Donate button, widget: object, required: false, fields: *linkFields }
+          - { name: mailingAddress, label: Mailing address, widget: text, required: false }
+          - { name: email, label: Email, widget: string, required: false }
+          - name: social
+            label: Social links
+            widget: list
+            required: false
+            summary: '{{fields.platform}}'
+            fields:
+              - name: platform
+                label: Platform
+                widget: select
+                options:
+                  - { label: Facebook, value: facebook }
+                  - { label: Instagram, value: instagram }
+                  - { label: YouTube, value: youtube }
+              - { name: url, label: Address, widget: string }
+      - name: navigation
+        label: Main navigation
+        file: site/src/content/settings/navigation.json
+        fields:
+          - name: items
+            label: Menu items
+            widget: list
+            collapsed: auto
+            summary: '{{fields.label}}'
+            fields:
+              - { name: label, label: Label, widget: string }
+              - { name: page, label: Page on this site, widget: relation, collection: pages, required: false }
+              - { name: href, label: Or a link, widget: string, required: false }
+              - name: children
+                label: Dropdown items
+                widget: list
+                required: false
+                collapsed: auto
+                summary: '{{fields.label}}'
+                hint: Optional. Items here make this menu item a dropdown.
+                fields: *linkFields
+      - name: footer
+        label: Footer
+        file: site/src/content/settings/footer.json
+        fields:
+          - name: links
+            label: Footer links
+            widget: list
+            collapsed: auto
+            summary: '{{fields.label}}'
+            fields: *linkFields
+          - { name: note, label: Note, widget: text, required: false, hint: Optional short text under the address. }

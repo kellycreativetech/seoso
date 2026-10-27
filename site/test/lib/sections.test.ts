@@ -59,3 +59,20 @@ describe("expandSnippets", () => {
     ]);
   });
 });
+
+describe("values as the CMS saves them", () => {
+  test("blank optional numbers, links and images are treated as empty", () => {
+    const parsed = previewSectionSchema.safeParse({ type: "eventsList", scope: "upcoming", limit: "", footerLink: null, heading: "" });
+    expect(parsed.success).toBe(true);
+    const hero = previewSectionSchema.safeParse({ type: "hero", heading: "Hi", image: { src: "", alt: "" } });
+    expect(hero.success && hero.data.type === "hero" && hero.data.image).toBeFalsy();
+  });
+  test("card columns saved as text still work", () => {
+    const parsed = previewSectionSchema.parse({ type: "cardGrid", columns: "4", cards: [] });
+    expect(parsed.type === "cardGrid" && parsed.columns).toBe(4);
+  });
+  test("text + media with an empty media choice has no media", () => {
+    const parsed = previewSectionSchema.parse({ type: "textMedia", body: "x", mediaSide: "left", media: { kind: "", image: null } });
+    expect(parsed.type === "textMedia" && parsed.media).toBeFalsy();
+  });
+});

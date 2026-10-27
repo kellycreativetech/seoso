@@ -1,7 +1,7 @@
 import { defineCollection, type SchemaContext } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { linkSchema, makeSectionSchema } from "./lib/sections";
+import { linkSchema, makeSectionSchema, optional, optionalWhen } from "./lib/sections";
 
 const text = z.string().nullish();
 const md = (folder: string) => glob({ pattern: "**/*.md", base: `./src/content/${folder}` });
@@ -10,8 +10,8 @@ const settingsFile = (name: string) => glob({ pattern: `${name}.json`, base: "./
 type ImageFn = SchemaContext["image"];
 
 const seo = (image: ImageFn) =>
-  z.object({ title: text, description: text, image: image().nullish(), noIndex: z.boolean().default(false) }).nullish();
-const picture = (image: ImageFn) => z.object({ src: image(), alt: z.string().default("") }).nullish();
+  z.object({ title: text, description: text, image: optional(image()), noIndex: z.boolean().default(false) }).nullish();
+const picture = (image: ImageFn) => optionalWhen("src", z.object({ src: image(), alt: z.string().default("") }));
 
 // Pages and snippets are ordered lists of sections; the file name is the slug.
 const pages = defineCollection({
@@ -33,11 +33,11 @@ const events = defineCollection({
       title: z.string(),
       isNamedProgram: z.boolean().default(false),
       start: z.coerce.date(),
-      end: z.coerce.date().nullish(),
+      end: optional(z.coerce.date()),
       venue: text,
       summary: text,
       admission: text,
-      tickets: linkSchema.nullish(),
+      tickets: text, // ticket URL; shown as "Get tickets" until the event has passed
       image: picture(image),
       seo: seo(image),
     }),
@@ -72,9 +72,9 @@ const site = defineCollection({
       tagline: text,
       description: text,
       logo: picture(image),
-      defaultSeoImage: image().nullish(),
+      defaultSeoImage: optional(image()),
       homePage: z.string().default("home"),
-      donateLink: linkSchema.nullish(),
+      donateLink: optionalWhen("label", linkSchema),
       mailingAddress: text,
       email: text,
       social: z.array(z.object({ platform: z.string(), url: z.string() })).default([]),

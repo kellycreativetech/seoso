@@ -27,35 +27,46 @@ export type SectionType = (typeof SECTION_TYPES)[number];
 
 const text = z.string().nullish();
 
+// The CMS saves untouched optional fields as "" (or an object with blank members); treat those as empty.
+const isBlank = (v: unknown) => v === "" || v === null || v === undefined;
+export const blankToNull = (v: unknown) => (v === "" ? null : v);
+/** An optional value that may arrive from the CMS as "". */
+export const optional = <T extends z.ZodType>(schema: T) => z.preprocess(blankToNull, schema.nullish());
+/** An optional object that counts as absent when `key` is blank. */
+export const optionalWhen = <T extends z.ZodType>(key: string, schema: T) =>
+  z.preprocess((v) => (v && typeof v === "object" && isBlank((v as Record<string, unknown>)[key]) ? null : blankToNull(v)), schema.nullish());
+
 export const linkSchema = z.object({ label: z.string(), href: text, page: text });
+const optionalLink = optionalWhen("label", linkSchema);
 
 /** Builds the section schema around an image `src` schema: Astro's `image()` at build, plain strings in preview. */
 export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
-  const image = z.object({ src, alt: z.string().default("") });
+  const requiredImage = z.object({ src, alt: z.string().default("") });
+  const optionalImage = optionalWhen("src", requiredImage);
   const buttons = z.array(linkSchema).max(2).default([]);
   const header = { anchorId: text, eyebrow: text, heading: text };
 
   return z.discriminatedUnion("type", [
-    z.object({ type: z.literal("hero"), anchorId: text, eyebrow: text, heading: z.string(), lead: text, buttons, image: image.nullish() }),
+    z.object({ type: z.literal("hero"), anchorId: text, eyebrow: text, heading: z.string(), lead: text, buttons, image: optionalImage }),
     z.object({
       type: z.literal("eventsList"),
       ...header,
       note: text,
-      scope: z.enum(["upcoming", "past"]),
-      limit: z.number().int().positive().nullish(),
-      footerLink: linkSchema.nullish(),
+      scope: z.preprocess((v) => (isBlank(v) ? "upcoming" : v), z.enum(["upcoming", "past"])),
+      limit: optional(z.coerce.number().int().positive()),
+      footerLink: optionalLink,
       disclaimer: text,
     }),
     z.object({
       type: z.literal("highlightBand"),
       anchorId: text,
-      figure: image.nullish(),
+      figure: optionalImage,
       eyebrow: text,
       heading: z.string(),
       body: text,
       buttons,
     }),
-    z.object({ type: z.literal("newsList"), ...header, limit: z.number().int().positive().default(3), footerLink: linkSchema.nullish() }),
+    z.object({ type: z.literal("newsList"), ...header, limit: z.preprocess((v) => (isBlank(v) ? 3 : v), z.coerce.number().int().positive()), footerLink: linkSchema.nullish() }),
     z.object({ type: z.literal("richText"), ...header, body: z.string() }),
     z.object({
       type: z.literal("people"),
@@ -74,7 +85,7 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
       type: z.literal("gallery"),
       ...header,
       intro: text,
-      images: z.array(image.extend({ caption: text })).default([]),
+      images: z.array(requiredImage.extend({ caption: text })).default([]),
     }),
     z.object({
       type: z.literal("video"),
@@ -87,25 +98,26 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
       ...header,
       body: z.string(),
       buttons,
-      mediaSide: z.enum(["left", "right"]).default("right"),
-      media: z
-        .discriminatedUnion("kind", [
-          z.object({ kind: z.literal("image"), image }),
+      mediaSide: z.preprocess((v) => (isBlank(v) ? "right" : v), z.enum(["left", "right"])),
+      media: optionalWhen(
+        "kind",
+        z.discriminatedUnion("kind", [
+          z.object({ kind: z.literal("image"), image: requiredImage }),
           z.object({ kind: z.literal("video"), youtubeId: z.string(), title: z.string() }),
-        ])
-        .nullish(),
+        ]),
+      ),
     }),
     z.object({
       type: z.literal("cardGrid"),
       ...header,
       intro: text,
-      columns: z.union([z.literal(2), z.literal(3), z.literal(4)]).default(3),
-      cards: z.array(z.object({ title: z.string(), text, image: image.nullish(), link: linkSchema.nullish() })).default([]),
+      columns: z.preprocess((v) => (isBlank(v) ? 3 : Number(v)), z.union([z.literal(2), z.literal(3), z.literal(4)])),
+      cards: z.array(z.object({ title: z.string(), text, image: optionalImage, link: optionalLink })).default([]),
     }),
     z.object({
       type: z.literal("testimonials"),
       ...header,
-      quotes: z.array(z.object({ quote: z.string(), name: z.string(), role: text, photo: image.nullish() })).min(1).max(3),
+      quotes: z.array(z.object({ quote: z.string(), name: z.string(), role: text, photo: optionalImage })).min(1).max(3),
     }),
     z.object({ type: z.literal("ctaBand"), anchorId: text, heading: z.string(), text, buttons }),
     z.object({
@@ -121,7 +133,7 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
     z.object({
       type: z.literal("logos"),
       ...header,
-      logos: z.array(z.object({ image, name: z.string(), href: text })).default([]),
+      logos: z.array(z.object({ image: requiredImage, name: z.string(), href: text })).default([]),
     }),
     z.object({ type: z.literal("snippet"), anchorId: text, snippet: z.string() }),
   ]);

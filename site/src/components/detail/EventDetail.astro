@@ -15,7 +15,7 @@ export type EventView = {
   end?: Date | null;
   summary?: string | null;
   admission?: string | null;
-  tickets?: { label: string; href?: string | null; page?: string | null } | null;
+  tickets?: string | null;
   body?: string | null;
   venue?: { name: string; city: string; address?: string | null; directions?: string | null; website?: string | null } | null;
 };
@@ -39,7 +39,7 @@ const label = "text-small font-semibold tracking-[0.14em] text-secondary upperca
   {
     event.tickets && !past && (
       <div>
-        <ButtonLink link={{ ...event.tickets, label: "Get tickets" }} />
+        <ButtonLink link={{ label: "Get tickets", href: event.tickets }} />
       </div>
     )
   }
