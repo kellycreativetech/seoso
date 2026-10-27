@@ -9,8 +9,10 @@ interface Props {
   /** CMS preview: tag each wrapper with its key path so clicking it highlights the block's fields. */
   preview?: boolean;
   snippets?: Map<string, Section[]>;
+  /** Preview only: each section's position in the editor's list (some half-filled blocks may be skipped). */
+  sourceIndexes?: number[];
 }
-const { sections, rotateTones = false, preview = false, snippets = new Map() } = Astro.props;
+const { sections, rotateTones = false, preview = false, snippets = new Map(), sourceIndexes } = Astro.props;
 
 // "stage" wrappers scope the dark palette onto pure black, so base-* colors inside any section read correctly.
 const isStage = (section: Section, index: number) =>
@@ -25,7 +27,7 @@ const items = expandSnippets(sections, snippets);
       data-section
       data-theme={isStage(section, index) ? "seoso-dark" : undefined}
       class={isStage(section, index) ? "bg-neutral text-base-content" : undefined}
-      data-key-path={preview ? `sections.${sourceIndex}` : undefined}
+      data-key-path={preview ? `sections.${sourceIndexes?.[sourceIndex] ?? sourceIndex}` : undefined}
     >
       <SectionRenderer section={section} index={index} isFirst={index === 0} />
     </div>

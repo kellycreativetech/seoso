@@ -1,0 +1,50 @@
+---
+// Live preview for the CMS: renders the entry being edited with the real components and returns HTML that
+// public/admin/preview.js puts in the preview pane. Same-origin POST only; nothing private is returned.
+import { getEntry } from "astro:content";
+import EventDetail from "../../components/detail/EventDetail.astro";
+import PostDetail from "../../components/detail/PostDetail.astro";
+import PageBuilder from "../../components/PageBuilder.astro";
+import SiteFooter from "../../components/site/SiteFooter.astro";
+import SiteHeader from "../../components/site/SiteHeader.astro";
+import { parsePreview } from "../../lib/preview";
+import { loadSite, loadSnippets } from "../../lib/site-data";
+
+export const prerender = false;
+
+const { request, url } = Astro;
+if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+if (request.headers.get("Origin") !== url.origin) return new Response("Forbidden", { status: 403 });
+
+let payload: { collection?: unknown; data?: unknown; slug?: unknown };
+try {
+  payload = await request.json();
+} catch {
+  return new Response("Bad request", { status: 400 });
+}
+const result = parsePreview(payload?.collection, payload?.data);
+if (result.kind === "error" && result.message === "Unknown collection") return new Response(result.message, { status: 400 });
+
+const [data, snippets] = await Promise.all([loadSite(), loadSnippets()]);
+const isHome = payload.collection === "pages" && payload.slug === data.site.homePage;
+const venue = result.kind === "event" && result.event.venue ? await getEntry("venues", result.event.venue) : undefined;
+const notice = (count: number) => `${count} block${count === 1 ? "" : "s"} couldn’t be previewed yet. Fill in the required fields to see ${count === 1 ? "it" : "them"}.`;
+---
+
+<SiteHeader data={data} />
+<main id="main">
+  {
+    result.kind === "sections" && result.invalid > 0 && (
+      <p role="status" class="bg-warning px-4 py-2 text-small text-warning-content">{notice(result.invalid)}</p>
+    )
+  }
+  {
+    result.kind === "sections" && (
+      <PageBuilder sections={result.sections} sourceIndexes={result.sourceIndexes} rotateTones={isHome} snippets={snippets} preview />
+    )
+  }
+  {result.kind === "event" && <EventDetail event={{ ...result.event, isNamedProgram: result.event.isNamedProgram ?? false, venue: venue?.data ?? null }} />}
+  {result.kind === "post" && <PostDetail post={result.post} />}
+  {result.kind === "error" && <p role="status" class="bg-warning px-4 py-2 text-small text-warning-content">{result.message}</p>}
+</main>
+<SiteFooter data={data} />
