@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "seoso-rollover",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-20",
+  // 04:10 UTC = 00:10 EDT, 05:10 UTC = 00:10 EST. One of them is just after midnight Eastern all year.
+  "triggers": { "crons": ["10 4 * * *", "10 5 * * *"] },
+  // SITE_URL is set in the Cloudflare dashboard (Settings → Variables); DEPLOY_HOOK_URL is a secret there.
+  "keep_vars": true
+}
