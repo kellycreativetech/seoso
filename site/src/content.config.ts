@@ -1,4 +1,4 @@
-import { defineCollection } from "astro:content";
+import { defineCollection, type SchemaContext } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { linkSchema, makeSectionSchema } from "./lib/sections";
@@ -7,9 +7,11 @@ const text = z.string().nullish();
 const md = (folder: string) => glob({ pattern: "**/*.md", base: `./src/content/${folder}` });
 const settingsFile = (name: string) => glob({ pattern: `${name}.json`, base: "./src/content/settings" });
 
-const seo = (image: () => z.ZodType) =>
+type ImageFn = SchemaContext["image"];
+
+const seo = (image: ImageFn) =>
   z.object({ title: text, description: text, image: image().nullish(), noIndex: z.boolean().default(false) }).nullish();
-const picture = (image: () => z.ZodType) => z.object({ src: image(), alt: z.string().default("") }).nullish();
+const picture = (image: ImageFn) => z.object({ src: image(), alt: z.string().default("") }).nullish();
 
 // Pages and snippets are ordered lists of sections; the file name is the slug.
 const pages = defineCollection({

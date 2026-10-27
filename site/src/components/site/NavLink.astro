@@ -1,0 +1,13 @@
+---
+import { type Link, resolveHref } from "../../lib/links";
+import SmartLink from "../ui/SmartLink.astro";
+
+// Menu link that marks the current page (aria-current + brand color).
+const { link } = Astro.props as { link: Link };
+const href = resolveHref(link);
+const isCurrent = href !== null && href.replace(/\/$/, "") === Astro.url.pathname.replace(/\/$/, "");
+---
+
+<SmartLink href={href} aria-current={isCurrent ? "page" : undefined} class={isCurrent ? "text-primary" : undefined}>
+  {link.label}
+</SmartLink>

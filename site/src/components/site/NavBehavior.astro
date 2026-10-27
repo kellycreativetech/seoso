@@ -1,0 +1,27 @@
+<script>
+  // The drawer and <details> dropdowns are CSS-only. Close them on link click, outside click, Escape, and when a
+  // page is restored from the back/forward cache.
+  import { DRAWER_ID } from "./drawer";
+
+  const closeDrawer = () => {
+    const toggle = document.getElementById(DRAWER_ID) as HTMLInputElement | null;
+    if (toggle) toggle.checked = false;
+  };
+  const openMenus = () => document.querySelectorAll<HTMLDetailsElement>("[data-site-menu] details[open]");
+  const closeAll = () => {
+    closeDrawer();
+    openMenus().forEach((details) => (details.open = false));
+  };
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as Element;
+    if (target.closest(".drawer-side a")) closeDrawer();
+    openMenus().forEach((details) => {
+      if (!details.contains(target) || target.closest("a")) details.open = false;
+    });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeAll();
+  });
+  window.addEventListener("pageshow", closeAll);
+</script>

@@ -1,0 +1,11 @@
+---
+import { type Link, resolveHref } from "../../lib/links";
+import SmartLink from "./SmartLink.astro";
+
+// Underlined call-to-action text link ("View all events").
+const { link } = Astro.props as { link: Link };
+---
+
+<SmartLink href={resolveHref(link)} class="link link-secondary font-semibold decoration-[1.5px] underline-offset-4">
+  {link.label}
+</SmartLink>

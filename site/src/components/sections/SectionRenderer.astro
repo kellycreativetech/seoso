@@ -1,0 +1,13 @@
+---
+import type { Section } from "../../lib/sections";
+
+// Maps a section's `type` to its component. Unknown types render nothing.
+interface Props {
+  section: Section;
+  isFirst: boolean;
+}
+const { section, isFirst } = Astro.props;
+void isFirst;
+---
+
+{section.type === "richText" && <section class="py-16">{section.body}</section>}

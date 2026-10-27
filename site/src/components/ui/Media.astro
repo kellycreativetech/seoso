@@ -1,0 +1,38 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+
+// Images are optimized at build (ImageMetadata); the CMS preview passes plain URLs, including unsaved blob: uploads.
+type Variant = "logo" | "logoSmall" | "hero" | "figure" | "gallery" | "card" | "media" | "portrait" | "sponsor";
+
+const variants: Record<Variant, string> = {
+  logo: "h-10 w-auto lg:h-12",
+  logoSmall: "h-10 w-auto",
+  hero: "aspect-[5/4] h-auto w-full object-cover object-[50%_54%] [mask-image:linear-gradient(to_bottom,transparent_0,#000_30%,#000_75%,transparent_100%)] sm:aspect-[16/5.6]",
+  figure: "aspect-square h-auto w-full object-contain",
+  gallery: "aspect-[4/3] h-auto w-full bg-base-200 object-cover",
+  card: "aspect-[3/2] h-auto w-full bg-base-200 object-cover",
+  media: "h-auto w-full bg-base-200 object-cover",
+  portrait: "size-14 shrink-0 bg-base-200 object-cover",
+  sponsor: "h-14 w-auto max-w-40 object-contain",
+};
+
+interface Props {
+  src: ImageMetadata | string;
+  alt: string;
+  width: number;
+  height: number;
+  variant: Variant;
+  loading?: "lazy" | "eager";
+  sizes?: string;
+}
+const { src, alt, width, height, variant, loading = "lazy", sizes } = Astro.props;
+---
+
+{
+  typeof src === "string" ? (
+    <img src={src} alt={alt} width={width} height={height} class={variants[variant]} loading={loading} decoding="async" />
+  ) : (
+    <Image src={src} alt={alt} width={width} height={height} class={variants[variant]} loading={loading} sizes={sizes} fit="cover" />
+  )
+}

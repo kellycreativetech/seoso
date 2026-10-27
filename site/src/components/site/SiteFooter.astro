@@ -1,0 +1,58 @@
+---
+import { resolveHref } from "../../lib/links";
+import type { SiteData } from "../../lib/site-data";
+import Container from "../ui/Container.astro";
+import SmartLink from "../ui/SmartLink.astro";
+import Logo from "./Logo.astro";
+
+const socialLabels: Record<string, string> = { facebook: "Facebook", instagram: "Instagram", youtube: "YouTube" };
+const { data } = Astro.props as { data: SiteData };
+const { site, footer } = data;
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-neutral text-small text-neutral-content/70">
+  <Container>
+    <div class="footer gap-8 pt-14 pb-10 sm:footer-horizontal">
+      <aside class="grid content-start gap-4">
+        <Logo site={site} size="footer" />
+        {site.tagline && <p class="font-serif text-lead text-neutral-content italic">{site.tagline}</p>}
+        {site.mailingAddress && <address class="whitespace-pre-line not-italic">{site.mailingAddress}</address>}
+        {site.email && <a href={`mailto:${site.email}`} class="link link-hover text-neutral-content">{site.email}</a>}
+        {footer.note && <p>{footer.note}</p>}
+      </aside>
+      <nav aria-label="Footer" class="sm:justify-self-end">
+        <ul class="flex flex-wrap gap-x-8 gap-y-3">
+          {
+            footer.links.map((link) => (
+              <li>
+                <SmartLink
+                  href={resolveHref(link)}
+                  class="link link-hover font-semibold tracking-[0.12em] text-neutral-content uppercase hover:text-primary"
+                >
+                  {link.label}
+                </SmartLink>
+              </li>
+            ))
+          }
+          {
+            site.social.map((social) => (
+              <li>
+                <SmartLink
+                  href={social.url}
+                  class="link link-hover font-semibold tracking-[0.12em] text-neutral-content uppercase hover:text-primary"
+                >
+                  {socialLabels[social.platform] ?? social.platform}
+                </SmartLink>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+    <div class="flex flex-wrap justify-between gap-x-8 gap-y-2 border-t border-neutral-content/15 py-6">
+      <span>{site.organizationName}</span>
+      <span>© {year} {site.title}</span>
+    </div>
+  </Container>
+</footer>

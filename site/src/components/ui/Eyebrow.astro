@@ -1,0 +1,14 @@
+---
+type Tone = "brand" | "brandOnLight" | "muted";
+
+// Complete static class strings per tone. `brand` is for black backgrounds.
+const tones: Record<Tone, string> = {
+  brand: "text-small font-semibold tracking-[0.14em] text-primary uppercase",
+  brandOnLight: "text-small font-semibold tracking-[0.14em] text-secondary uppercase",
+  muted: "text-small font-semibold tracking-[0.14em] text-base-content/70 uppercase",
+};
+
+const { tone = "brandOnLight" } = Astro.props as { tone?: Tone };
+---
+
+<p class={tones[tone]}><slot /></p>

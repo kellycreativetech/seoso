@@ -1,9 +1,14 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import PageBuilder from "../components/PageBuilder.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { getEntry } from "astro:content";
+import { loadSnippets } from "../lib/site-data";
+import type { Section } from "../lib/sections";
+
+const page = await getEntry("pages", "home");
+const snippets = await loadSnippets();
 ---
 
-<BaseLayout title="SEOSO">
-  <main class="bg-neutral p-16 text-neutral-content">
-    <h1 class="font-serif text-h1">Southeastern Ohio Symphony <em class="text-primary">Orchestra</em></h1>
-  </main>
-</BaseLayout>
+<SiteLayout>
+  <PageBuilder sections={(page?.data.sections ?? []) as Section[]} rotateTones snippets={snippets} />
+</SiteLayout>

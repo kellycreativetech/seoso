@@ -1,0 +1,10 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { isExternal } from "../../lib/links";
+
+// Internal primitive: callers pass complete, static class strings. External URLs open safely.
+type Props = Omit<HTMLAttributes<"a">, "href"> & { href: string | null };
+const { href, ...rest } = Astro.props;
+---
+
+{href && <a href={href} {...(isExternal(href) ? { rel: "noopener noreferrer" } : {})} {...rest}><slot /></a>}

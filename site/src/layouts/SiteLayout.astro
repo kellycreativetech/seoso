@@ -1,0 +1,29 @@
+---
+import NavBehavior from "../components/site/NavBehavior.astro";
+import SiteDrawer from "../components/site/SiteDrawer.astro";
+import SiteFooter from "../components/site/SiteFooter.astro";
+import SiteHeader from "../components/site/SiteHeader.astro";
+import { loadSite } from "../lib/site-data";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title?: string;
+  description?: string | null;
+  image?: string;
+  noIndex?: boolean;
+}
+const { title, description, image, noIndex } = Astro.props;
+const data = await loadSite();
+const siteName = data.site.organizationName ?? data.site.title;
+const fullTitle = title ? `${title} | ${data.site.title}` : siteName;
+---
+
+<BaseLayout title={fullTitle} description={description ?? data.site.description ?? undefined} image={image} noIndex={noIndex}>
+  <SiteDrawer data={data}>
+    <a href="#main" class="btn btn-sm absolute top-2 left-2 z-50 -translate-y-20 focus:translate-y-0">Skip to content</a>
+    <SiteHeader data={data} />
+    <main id="main" class="flex-1"><slot /></main>
+    <SiteFooter data={data} />
+  </SiteDrawer>
+  <NavBehavior />
+</BaseLayout>

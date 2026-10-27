@@ -1,0 +1,26 @@
+---
+import Media from "../ui/Media.astro";
+import type { SiteData } from "../../lib/site-data";
+
+interface Props {
+  site: SiteData["site"];
+  size: "header" | "footer";
+}
+const { site, size } = Astro.props;
+const logo = site.logo;
+---
+
+{
+  logo ? (
+    <Media
+      src={logo.src}
+      alt={logo.alt || site.title}
+      width={typeof logo.src === "string" ? 335 : logo.src.width}
+      height={typeof logo.src === "string" ? 171 : logo.src.height}
+      variant={size === "header" ? "logo" : "logoSmall"}
+      loading="eager"
+    />
+  ) : (
+    <span class="font-serif text-title">{site.title}</span>
+  )
+}

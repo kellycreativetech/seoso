@@ -1,0 +1,60 @@
+---
+import { Menu } from "@lucide/astro";
+import type { SiteData } from "../../lib/site-data";
+import ButtonLink from "../ui/ButtonLink.astro";
+import Container from "../ui/Container.astro";
+import Logo from "./Logo.astro";
+import NavLink from "./NavLink.astro";
+import { DRAWER_ID } from "./drawer";
+
+// navbar-start/end default to 50% each; the logo needs far less, so give the menu side the rest.
+const { data } = Astro.props as { data: SiteData };
+const { site, navigation } = data;
+---
+
+<header class="relative z-10 bg-neutral text-neutral-content">
+  <Container>
+    <nav aria-label="Main" class="navbar min-h-0 gap-6 px-0 py-5">
+      <div class="navbar-start w-auto shrink-0">
+        <a href="/" aria-label={`${site.title} home`} class="shrink-0"><Logo site={site} size="header" /></a>
+      </div>
+      <div class="navbar-end w-auto flex-1 gap-4">
+        <ul
+          data-site-menu
+          class="menu menu-horizontal hidden flex-nowrap text-small font-semibold tracking-[0.12em] uppercase lg:flex"
+        >
+          {
+            navigation.map((item) =>
+              item.children.length ? (
+                <li>
+                  <details>
+                    <summary>{item.label}</summary>
+                    <ul class="z-20 w-60 bg-neutral p-2 text-neutral-content">
+                      {item.children.map((child) => (
+                        <li>
+                          <NavLink link={child} />
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                </li>
+              ) : (
+                <li>
+                  <NavLink link={item} />
+                </li>
+              ),
+            )
+          }
+        </ul>
+        {site.donateLink && <ButtonLink link={site.donateLink} variant="outlineOnDarkSmall" />}
+        <label
+          for={DRAWER_ID}
+          class="btn btn-sm btn-outline border-neutral-content/60 text-small font-semibold tracking-[0.12em] text-neutral-content uppercase lg:hidden"
+        >
+          <Menu aria-hidden="true" class="size-4" />
+          Menu
+        </label>
+      </div>
+    </nav>
+  </Container>
+</header>

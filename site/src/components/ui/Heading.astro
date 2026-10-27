@@ -1,0 +1,8 @@
+---
+import { renderInline } from "../../lib/inline";
+
+// One line of inline Markdown (*italic*, ~~strike~~); the parent supplies the heading element and styles `em`.
+const { text } = Astro.props as { text: string };
+---
+
+<Fragment set:html={renderInline(text)} />
