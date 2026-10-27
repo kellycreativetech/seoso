@@ -39,7 +39,7 @@ Sveltia CMS at `/admin`. The site is prerendered by Astro and served by Cloudfla
 
 | What | Where |
 | --- | --- |
-| Site Worker `seoso` | Cloudflare Workers Builds, root `site`, build `npm run build`, deploy `npx wrangler deploy`, production branch `sveltia` (switch to `main` at cutover). Build variable `SITE_URL`. |
+| Site Worker `seoso` | Cloudflare Workers Builds, root `site`, build `npm run build`, deploy `npx wrangler deploy`, production branch `main`. Build variable `SITE_URL`. |
 | CMS sign-in | Sveltia CMS Authenticator Worker + a GitHub OAuth App owned by `kellycreativetech`. Secrets `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and variable `ALLOWED_DOMAINS` live on that Worker. Its URL is `backend.base_url` in `public/admin/config.yml`. |
 | Rollover Worker `seoso-rollover` | Workers Builds, root `workers/rollover`. Variable `SITE_URL`, secret `DEPLOY_HOOK_URL` (the site's deploy hook). |
 

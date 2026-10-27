@@ -5,7 +5,7 @@ Sanity Studio and a Next.js frontend styled with daisyUI 5 on Tailwind CSS 4.
 
 Read this whole file before changing anything.
 
-> **New stack in progress (branch `sveltia`):** `site/` is the replacement — Astro + Sveltia CMS on Cloudflare
+> **New stack (on `main`; the old Sanity/Next.js site is kept on branch `old-sanity`):** `site/` is the live site — Astro + Sveltia CMS on Cloudflare
 > Workers, content in `site/src/content/`. Read `site/README.md` before working there; the Sanity/Next.js rules
 > below apply to `web/` and `studio/` only. Design system and daisyUI rules apply to both (Blueprint
 > `projectRoot` for the new site: `/Users/kaseykelly/Sites/seoso/site`).

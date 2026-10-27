@@ -28,8 +28,8 @@ describe("Sveltia CMS config", () => {
       for (const f of c.files ?? []) expect(existsSync(join(repoRoot, f.file)), f.file).toBe(true);
     }
   });
-  test("edits go to the GitHub repo's sveltia branch, straight to the branch", () => {
-    expect(config.backend).toMatchObject({ name: "github", repo: "kellycreativetech/seoso", branch: "sveltia" });
+  test("edits go to the GitHub repo's main branch, straight to the branch", () => {
+    expect(config.backend).toMatchObject({ name: "github", repo: "kellycreativetech/seoso", branch: "main" });
     expect(config.publish_mode).toBe("simple");
   });
   test("event times are entered in Eastern time and stored as UTC", () => {
