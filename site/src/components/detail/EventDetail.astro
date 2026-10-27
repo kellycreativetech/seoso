@@ -2,6 +2,7 @@
 import { ExternalLink } from "@lucide/astro";
 import { eventDateParts, formatTime } from "../../lib/dates";
 import { isPast } from "../../lib/events";
+import { buildNow } from "../../lib/now";
 import ButtonLink from "../ui/ButtonLink.astro";
 import Container from "../ui/Container.astro";
 import Markdown from "../sections/Markdown.astro";
@@ -21,7 +22,7 @@ export type EventView = {
 };
 const { event } = Astro.props as { event: EventView };
 const date = eventDateParts(event.start.toISOString());
-const past = isPast(event, new Date());
+const past = isPast(event, buildNow(Astro.isPrerendered));
 const venue = event.venue;
 const label = "text-small font-semibold tracking-[0.14em] text-secondary uppercase";
 ---

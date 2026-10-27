@@ -10,6 +10,9 @@ backend:
   base_url: https://sveltia-cms-auth.REPLACE-ME.workers.dev
 
 publish_mode: simple
+# Leave untouched optional fields out of the files instead of saving them as "".
+output:
+  omit_empty_optional_fields: true
 # Uploads live in site/src/assets/uploads so Astro optimizes them. Each collection below stores image paths
 # relative to its own folder (src/content/<collection>/ → ../../assets/uploads), which is what Astro's image()
 # expects; the top-level values (which must be absolute) are only used by the media library.

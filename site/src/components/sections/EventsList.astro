@@ -2,6 +2,7 @@
 import { CalendarPlus } from "@lucide/astro";
 import { loadEvents } from "../../lib/event-data";
 import { selectEvents } from "../../lib/events";
+import { buildNow } from "../../lib/now";
 import type { Section as SectionData } from "../../lib/sections";
 import TextLink from "../ui/TextLink.astro";
 import EventList from "./EventList.astro";
@@ -18,7 +19,7 @@ const { section, index } = Astro.props;
 const { eyebrow, heading, note, scope, limit, footerLink, disclaimer, anchorId } = section;
 const headingId = `heading-${anchorId ?? index}`;
 
-const events = selectEvents(await loadEvents(), scope, new Date(), limit);
+const events = selectEvents(await loadEvents(), scope, buildNow(Astro.isPrerendered), limit);
 // Upcoming lists offer the season as a calendar subscription (see pages/events.ics.ts).
 const calendarUrl = new URL("/events.ics", Astro.site ?? "http://localhost:4321");
 const webcal = calendarUrl.href.replace(/^https?:/, "webcal:");
@@ -42,10 +43,12 @@ const webcal = calendarUrl.href.replace(/^https?:/, "webcal:");
       {footerLink && <TextLink link={footerLink} />}
       {
         scope === "upcoming" && (
-          <a href={webcal} class="link link-hover inline-flex items-center gap-2 text-small font-semibold">
+          <span class="inline-flex flex-wrap items-center gap-x-2 text-small font-semibold">
             <CalendarPlus aria-hidden="true" class="size-4" />
-            Subscribe to the season calendar
-          </a>
+            <a href={webcal} class="link link-hover">Subscribe to the season calendar</a>
+            <span class="text-base-content/70">or</span>
+            <a href={calendarUrl.href} download="seoso-concerts.ics" class="link link-hover">download it</a>
+          </span>
         )
       }
     </div>

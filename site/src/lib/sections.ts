@@ -25,13 +25,19 @@ export const SECTION_TYPES = [
 
 export type SectionType = (typeof SECTION_TYPES)[number];
 
-const text = z.string().nullish();
-
 // The CMS saves untouched optional fields as "" (or an object with blank members); treat those as empty.
 const isBlank = (v: unknown) => v === "" || v === null || v === undefined;
 export const blankToNull = (v: unknown) => (v === "" ? null : v);
 /** An optional value that may arrive from the CMS as "". */
 export const optional = <T extends z.ZodType>(schema: T) => z.preprocess(blankToNull, schema.nullish());
+export const optionalText = optional(z.string());
+const text = optionalText;
+
+// An image picked from the CMS media library may be saved with its repo path; content files expect the path
+// relative to src/content/<collection>/ (what Astro's image() resolves).
+const UPLOADS_ABSOLUTE = "/site/src/assets/uploads/";
+export const normalizeUploadPath = (v: unknown) =>
+  typeof v === "string" && v.startsWith(UPLOADS_ABSOLUTE) ? `../../assets/uploads/${v.slice(UPLOADS_ABSOLUTE.length)}` : v;
 /** An optional object that counts as absent when `key` is blank. */
 export const optionalWhen = <T extends z.ZodType>(key: string, schema: T) =>
   z.preprocess((v) => (v && typeof v === "object" && isBlank((v as Record<string, unknown>)[key]) ? null : blankToNull(v)), schema.nullish());
@@ -41,7 +47,7 @@ const optionalLink = optionalWhen("label", linkSchema);
 
 /** Builds the section schema around an image `src` schema: Astro's `image()` at build, plain strings in preview. */
 export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
-  const requiredImage = z.object({ src, alt: z.string().default("") });
+  const requiredImage = z.object({ src: z.preprocess(normalizeUploadPath, src), alt: z.string().default("") });
   const optionalImage = optionalWhen("src", requiredImage);
   const buttons = z.array(linkSchema).max(2).default([]);
   const header = { anchorId: text, eyebrow: text, heading: text };
@@ -66,7 +72,7 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
       body: text,
       buttons,
     }),
-    z.object({ type: z.literal("newsList"), ...header, limit: z.preprocess((v) => (isBlank(v) ? 3 : v), z.coerce.number().int().positive()), footerLink: linkSchema.nullish() }),
+    z.object({ type: z.literal("newsList"), ...header, limit: z.preprocess((v) => (isBlank(v) ? 3 : v), z.coerce.number().int().positive()), footerLink: optionalLink }),
     z.object({ type: z.literal("richText"), ...header, body: z.string() }),
     z.object({
       type: z.literal("people"),
@@ -99,12 +105,19 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
       body: z.string(),
       buttons,
       mediaSide: z.preprocess((v) => (isBlank(v) ? "right" : v), z.enum(["left", "right"])),
-      media: optionalWhen(
-        "kind",
+      // A Type chosen without its image or video ID counts as no media (the CMS can't require it).
+      media: z.preprocess(
+        (v) => {
+          const m = v as { kind?: string; image?: { src?: string } | null; youtubeId?: string } | null;
+          if (!m || typeof m !== "object" || isBlank(m.kind)) return null;
+          if (m.kind === "image" && isBlank(m.image?.src)) return null;
+          if (m.kind === "video" && isBlank(m.youtubeId)) return null;
+          return m;
+        },
         z.discriminatedUnion("kind", [
           z.object({ kind: z.literal("image"), image: requiredImage }),
-          z.object({ kind: z.literal("video"), youtubeId: z.string(), title: z.string() }),
-        ]),
+          z.object({ kind: z.literal("video"), youtubeId: z.string(), title: z.string().default("Video") }),
+        ]).nullish(),
       ),
     }),
     z.object({

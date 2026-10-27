@@ -7,6 +7,7 @@ export function escapeHtml(text: string): string {
 
 export function renderInline(md: string): string {
   return escapeHtml(md)
+    .replace(/\*\*(.+?)\*\*/g, "$1") // headings have no bold; show **text** as plain text
     .replace(/~~(.+?)~~/g, "<s>$1</s>")
     .replace(/\*(\S(?:.*?\S)?)\*/g, "<em>$1</em>");
 }

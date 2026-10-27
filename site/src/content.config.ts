@@ -1,17 +1,18 @@
 import { defineCollection, type SchemaContext } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { linkSchema, makeSectionSchema, optional, optionalWhen } from "./lib/sections";
+import { linkSchema, makeSectionSchema, normalizeUploadPath, optional, optionalText, optionalWhen } from "./lib/sections";
 
-const text = z.string().nullish();
+const text = optionalText;
 const md = (folder: string) => glob({ pattern: "**/*.md", base: `./src/content/${folder}` });
 const settingsFile = (name: string) => glob({ pattern: `${name}.json`, base: "./src/content/settings" });
 
 type ImageFn = SchemaContext["image"];
 
 const seo = (image: ImageFn) =>
-  z.object({ title: text, description: text, image: optional(image()), noIndex: z.boolean().default(false) }).nullish();
-const picture = (image: ImageFn) => optionalWhen("src", z.object({ src: image(), alt: z.string().default("") }));
+  z.object({ title: text, description: text, image: optional(z.preprocess(normalizeUploadPath, image())), noIndex: z.boolean().default(false) }).nullish();
+const picture = (image: ImageFn) =>
+  optionalWhen("src", z.object({ src: z.preprocess(normalizeUploadPath, image()), alt: z.string().default("") }));
 
 // Pages and snippets are ordered lists of sections; the file name is the slug.
 const pages = defineCollection({
@@ -72,7 +73,7 @@ const site = defineCollection({
       tagline: text,
       description: text,
       logo: picture(image),
-      defaultSeoImage: optional(image()),
+      defaultSeoImage: optional(z.preprocess(normalizeUploadPath, image())),
       homePage: z.string().default("home"),
       donateLink: optionalWhen("label", linkSchema),
       mailingAddress: text,

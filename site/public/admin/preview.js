@@ -3,12 +3,12 @@
 // Uses the React bundled with Sveltia (CMS.React), so there's nothing to build or install.
 (() => {
   const { createElement: h, useEffect, useState } = CMS.React;
-  const UPLOADS = "../../assets/uploads/";
+  const UPLOADS = ["../../assets/uploads/", "/site/src/assets/uploads/"];
 
   // Images saved in the repo are referenced relative to the content file; unsaved uploads only exist in the
   // browser. getAsset() turns either into a URL the preview can load.
   function resolveAssets(value, getAsset) {
-    if (typeof value === "string") return value.startsWith(UPLOADS) ? getAsset(value)?.toString() || value : value;
+    if (typeof value === "string") return UPLOADS.some((prefix) => value.startsWith(prefix)) ? getAsset(value)?.toString() || value : value;
     if (Array.isArray(value)) return value.map((item) => resolveAssets(item, getAsset));
     if (value && typeof value === "object") {
       return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, resolveAssets(item, getAsset)]));
