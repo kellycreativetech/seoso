@@ -1,5 +1,6 @@
 ---
-import { getCollection } from "astro:content";
+import { CalendarPlus } from "@lucide/astro";
+import { loadEvents } from "../../lib/event-data";
 import { selectEvents } from "../../lib/events";
 import type { Section as SectionData } from "../../lib/sections";
 import TextLink from "../ui/TextLink.astro";
@@ -17,18 +18,10 @@ const { section, index } = Astro.props;
 const { eyebrow, heading, note, scope, limit, footerLink, disclaimer, anchorId } = section;
 const headingId = `heading-${anchorId ?? index}`;
 
-const [entries, venues] = await Promise.all([getCollection("events"), getCollection("venues")]);
-const venueBySlug = new Map(venues.map((v) => [v.id, v.data]));
-const all = entries.map((e) => ({
-  slug: e.id,
-  title: e.data.title,
-  isNamedProgram: e.data.isNamedProgram,
-  start: e.data.start,
-  end: e.data.end,
-  summary: e.data.summary,
-  venue: e.data.venue ? (venueBySlug.get(e.data.venue) ?? null) : null,
-}));
-const events = selectEvents(all, scope, new Date(), limit);
+const events = selectEvents(await loadEvents(), scope, new Date(), limit);
+// Upcoming lists offer the season as a calendar subscription (see pages/events.ics.ts).
+const calendarUrl = new URL("/events.ics", Astro.site ?? "http://localhost:4321");
+const webcal = calendarUrl.href.replace(/^https?:/, "webcal:");
 ---
 
 <Section id={anchorId} labelledBy={heading ? headingId : undefined}>
@@ -44,12 +37,18 @@ const events = selectEvents(all, scope, new Date(), limit);
       </p>
     )
   }
-  {
-    (footerLink || disclaimer) && (
-      <div class="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
-        {footerLink && <TextLink link={footerLink} />}
-        {disclaimer && <p class="text-small text-base-content/70">{disclaimer}</p>}
-      </div>
-    )
-  }
+  <div class="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+    <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
+      {footerLink && <TextLink link={footerLink} />}
+      {
+        scope === "upcoming" && (
+          <a href={webcal} class="link link-hover inline-flex items-center gap-2 text-small font-semibold">
+            <CalendarPlus aria-hidden="true" class="size-4" />
+            Subscribe to the season calendar
+          </a>
+        )
+      }
+    </div>
+    {disclaimer && <p class="text-small text-base-content/70">{disclaimer}</p>}
+  </div>
 </Section>

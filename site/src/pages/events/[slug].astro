@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection, getEntry } from "astro:content";
+import EventDetail from "../../components/detail/EventDetail.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+
+export const getStaticPaths = (async () =>
+  (await getCollection("events")).map((entry) => ({ params: { slug: entry.id }, props: { entry } }))) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const venue = entry.data.venue ? await getEntry("venues", entry.data.venue) : undefined;
+const event = { ...entry.data, body: entry.body, venue: venue?.data ?? null };
+---
+
+<SiteLayout title={entry.data.seo?.title ?? entry.data.title} description={entry.data.seo?.description ?? entry.data.summary} image={entry.data.seo?.image ?? entry.data.image?.src}>
+  <EventDetail event={event} />
+</SiteLayout>

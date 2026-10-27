@@ -1,0 +1,34 @@
+---
+import Container from "../ui/Container.astro";
+import Eyebrow from "../ui/Eyebrow.astro";
+
+// Black header for event and news detail pages, with breadcrumbs back to the listing.
+interface Props {
+  crumbs: { label: string; href: string }[];
+  eyebrow?: string;
+  title: string;
+  italic?: boolean;
+  lead?: string | null;
+}
+const { crumbs, eyebrow, title, italic = false, lead } = Astro.props;
+---
+
+<section class="bg-neutral text-neutral-content">
+  <Container>
+    <div class="grid gap-6 pt-8 pb-16 sm:pb-20">
+      <div class="breadcrumbs text-small text-neutral-content/70">
+        <ul>{crumbs.map((crumb) => <li><a href={crumb.href} class="link link-hover">{crumb.label}</a></li>)}</ul>
+      </div>
+      {eyebrow && <Eyebrow tone="brand">{eyebrow}</Eyebrow>}
+      <h1
+        class={italic
+          ? "max-w-[20ch] font-serif text-h2 font-light tracking-[-0.015em] text-balance italic sm:text-h1"
+          : "max-w-[20ch] font-serif text-h2 font-light tracking-[-0.015em] text-balance sm:text-h1"}
+      >
+        {title}
+      </h1>
+      {lead && <p class="max-w-[48ch] font-serif text-lead text-neutral-content/90">{lead}</p>}
+      <slot />
+    </div>
+  </Container>
+</section>

@@ -1,0 +1,23 @@
+---
+import { getEntry } from "astro:content";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import type { Section } from "../lib/sections";
+import { loadSite, loadSnippets } from "../lib/site-data";
+import PageBuilder from "./PageBuilder.astro";
+
+// Renders a page entry (by slug) inside the site layout. The home page alternates section backgrounds.
+const { slug } = Astro.props as { slug: string };
+const [page, { site }, snippets] = await Promise.all([getEntry("pages", slug), loadSite(), loadSnippets()]);
+if (!page) throw new Error(`Missing page ${slug}`);
+const isHome = slug === site.homePage;
+const seo = page.data.seo;
+---
+
+<SiteLayout
+  title={isHome ? undefined : (seo?.title ?? page.data.title)}
+  description={seo?.description}
+  image={seo?.image}
+  noIndex={seo?.noIndex}
+>
+  <PageBuilder sections={page.data.sections as Section[]} rotateTones={isHome} snippets={snippets} />
+</SiteLayout>

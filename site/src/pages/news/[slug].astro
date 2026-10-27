@@ -1,0 +1,15 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import PostDetail from "../../components/detail/PostDetail.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+
+export const getStaticPaths = (async () =>
+  (await getCollection("news")).map((entry) => ({ params: { slug: entry.id }, props: { entry } }))) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+---
+
+<SiteLayout title={entry.data.seo?.title ?? entry.data.title} description={entry.data.seo?.description ?? entry.data.excerpt} image={entry.data.seo?.image ?? entry.data.image?.src}>
+  <PostDetail post={{ ...entry.data, body: entry.body }} />
+</SiteLayout>

@@ -8,6 +8,9 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   site: process.env.SITE_URL ?? "http://localhost:4321",
   output: "static",
+  // Same URLs as the current site (/about, not /about/): emit about.html, which Cloudflare serves at /about.
+  build: { format: "file" },
+  trailingSlash: "never",
   adapter: process.env.VITEST ? undefined : cloudflare({ imageService: "compile" }),
   vite: { plugins: [tailwindcss()] },
 });

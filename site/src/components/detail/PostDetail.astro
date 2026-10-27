@@ -1,0 +1,43 @@
+---
+import { formatDate } from "../../lib/dates";
+import Container from "../ui/Container.astro";
+import TextLink from "../ui/TextLink.astro";
+import Markdown from "../sections/Markdown.astro";
+import DetailHeader from "./DetailHeader.astro";
+
+// News post body; also used by the CMS preview.
+export type PostView = {
+  title: string;
+  date: Date;
+  excerpt?: string | null;
+  facts: { label: string; value: string }[];
+  body?: string | null;
+};
+const { post } = Astro.props as { post: PostView };
+---
+
+<article>
+  <DetailHeader crumbs={[{ label: "News", href: "/news" }]} eyebrow={formatDate(post.date.toISOString())} title={post.title} lead={post.excerpt} />
+  <section class="py-16 sm:py-24">
+    <Container>
+      <div class="grid grid-cols-1 md:grid-cols-12">
+        <div class="max-w-[62ch] border-t-2 border-base-content pt-4 md:col-span-8 md:col-start-4">
+          {
+            post.facts.length > 0 && (
+              <dl class="my-4 flex flex-wrap gap-x-8 gap-y-2 border-b border-base-300 pb-4 text-small">
+                {post.facts.map((fact) => (
+                  <div class="flex gap-1.5">
+                    <dt class="font-semibold">{fact.label}</dt>
+                    <dd>{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )
+          }
+          <Markdown value={post.body} />
+          <p class="mt-12"><TextLink link={{ label: "All news", href: "/news" }} /></p>
+        </div>
+      </div>
+    </Container>
+  </section>
+</article>

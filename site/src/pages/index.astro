@@ -1,14 +1,8 @@
 ---
-import PageBuilder from "../components/PageBuilder.astro";
-import SiteLayout from "../layouts/SiteLayout.astro";
-import { getEntry } from "astro:content";
-import { loadSnippets } from "../lib/site-data";
-import type { Section } from "../lib/sections";
+import PageView from "../components/PageView.astro";
+import { loadSite } from "../lib/site-data";
 
-const page = await getEntry("pages", "home");
-const snippets = await loadSnippets();
+const { site } = await loadSite();
 ---
 
-<SiteLayout>
-  <PageBuilder sections={(page?.data.sections ?? []) as Section[]} rotateTones snippets={snippets} />
-</SiteLayout>
+<PageView slug={site.homePage} />

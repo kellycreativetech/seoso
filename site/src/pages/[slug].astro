@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import PageView from "../components/PageView.astro";
+import { loadSite } from "../lib/site-data";
+
+// /events and /news have their own routes (next to their detail pages); the home page lives at /.
+export const getStaticPaths = (async () => {
+  const { site } = await loadSite();
+  const reserved = new Set([site.homePage, "events", "news", "admin", "api"]);
+  return (await getCollection("pages")).filter((p) => !reserved.has(p.id)).map((p) => ({ params: { slug: p.id } }));
+}) satisfies GetStaticPaths;
+
+const { slug } = Astro.params;
+---
+
+<PageView slug={slug} />

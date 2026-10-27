@@ -1,0 +1,24 @@
+---
+import ButtonLink from "../components/ui/ButtonLink.astro";
+import Container from "../components/ui/Container.astro";
+import Eyebrow from "../components/ui/Eyebrow.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout title="Page not found" noIndex>
+  <section class="bg-neutral text-neutral-content">
+    <Container>
+      <div class="grid gap-6 py-24">
+        <Eyebrow tone="brand">Page not found</Eyebrow>
+        <h1 class="font-serif text-h2 font-light sm:text-h1">This page has <em class="text-primary italic">moved on</em></h1>
+        <p class="max-w-[40ch] font-serif text-lead text-neutral-content/90">
+          The page you’re looking for doesn’t exist. Try the season schedule or head back home.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <ButtonLink link={{ label: "See the season", href: "/events" }} />
+          <ButtonLink link={{ label: "Home", href: "/" }} variant="outlineOnDark" />
+        </div>
+      </div>
+    </Container>
+  </section>
+</SiteLayout>
