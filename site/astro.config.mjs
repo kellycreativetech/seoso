@@ -12,6 +12,8 @@ export default defineConfig({
   // Same URLs as the current site (/about, not /about/): emit about.html, which Cloudflare serves at /about.
   build: { format: "file" },
   trailingSlash: "never",
+  // No server sessions: without this the Cloudflare adapter adds a SESSION KV binding the deploy would need.
+  session: false,
   adapter: process.env.VITEST ? undefined : cloudflare({ imageService: "compile" }),
   vite: { plugins: [tailwindcss()] },
 });
