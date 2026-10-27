@@ -1,0 +1,35 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import ButtonLink from "../ui/ButtonLink.astro";
+import Container from "../ui/Container.astro";
+import Heading from "../ui/Heading.astro";
+
+// A short call to action: one line of heading, a sentence, and up to two buttons.
+interface Props {
+  section: Extract<SectionData, { type: "ctaBand" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { heading, text, buttons, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+<section id={anchorId ?? undefined} aria-labelledby={headingId} class="scroll-mt-8">
+  <Container>
+    <div class="flex flex-col gap-6 border-y-2 border-base-content py-10 md:flex-row md:items-center md:justify-between">
+      <div class="grid gap-2">
+        <h2 id={headingId} class="font-serif text-title text-balance sm:text-h3"><Heading text={heading} /></h2>
+        {text && <p class="max-w-[52ch] text-base-content/70">{text}</p>}
+      </div>
+      {
+        buttons.length > 0 && (
+          <div class="flex shrink-0 flex-wrap gap-4">
+            {buttons.map((link, i) => (
+              <ButtonLink link={link} variant={i === 0 ? "brandOnBase" : "outlineOnBase"} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </Container>
+</section>

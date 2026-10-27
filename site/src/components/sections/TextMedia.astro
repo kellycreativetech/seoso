@@ -1,0 +1,61 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import ButtonLink from "../ui/ButtonLink.astro";
+import Eyebrow from "../ui/Eyebrow.astro";
+import Heading from "../ui/Heading.astro";
+import Media from "../ui/Media.astro";
+import Markdown from "./Markdown.astro";
+import Section from "./Section.astro";
+import YouTube from "./YouTube.astro";
+
+// A few paragraphs with an image or video in a one-third column, left or right. On mobile the media follows the text.
+type Side = "left" | "right";
+const mediaColumn: Record<Side, string> = {
+  left: "md:order-first md:col-span-1",
+  right: "md:order-last md:col-span-1",
+};
+
+interface Props {
+  section: Extract<SectionData, { type: "textMedia" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, body, buttons, media, mediaSide, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+<Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+  <div class="grid grid-cols-1 items-start gap-x-12 gap-y-10 border-t-2 border-base-content pt-10 md:grid-cols-3">
+    <div class={media ? "grid gap-5 md:col-span-2" : "grid gap-5 md:col-span-3"}>
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+      {
+        heading && (
+          <h2 id={headingId} class="font-serif text-h3 tracking-[-0.01em] text-balance sm:text-h2">
+            <Heading text={heading} />
+          </h2>
+        )
+      }
+      <div class="max-w-[62ch]"><Markdown value={body} /></div>
+      {
+        buttons.length > 0 && (
+          <div class="flex flex-wrap gap-4">
+            {buttons.map((link, i) => (
+              <ButtonLink link={link} variant={i === 0 ? "brandOnBase" : "outlineOnBase"} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+    {
+      media && (
+        <div class={mediaColumn[mediaSide]}>
+          {media.kind === "image" ? (
+            <Media src={media.image.src} alt={media.image.alt} width={800} height={1000} variant="media" sizes="(min-width: 768px) 24rem, 100vw" />
+          ) : (
+            <YouTube youtubeId={media.youtubeId} title={media.title} />
+          )}
+        </div>
+      )
+    }
+  </div>
+</Section>

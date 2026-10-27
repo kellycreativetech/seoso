@@ -1,0 +1,47 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Media from "../ui/Media.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+// One to three quotes from audience members, musicians or partners.
+type Count = 1 | 2 | 3;
+const grids: Record<Count, string> = {
+  1: "grid grid-cols-1 border-t-2 border-base-content",
+  2: "grid grid-cols-1 gap-x-12 border-t-2 border-base-content md:grid-cols-2",
+  3: "grid grid-cols-1 gap-x-12 border-t-2 border-base-content md:grid-cols-3",
+};
+
+interface Props {
+  section: Extract<SectionData, { type: "testimonials" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, quotes, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+const count = Math.min(Math.max(quotes.length, 1), 3) as Count;
+---
+
+<Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+  <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId} />
+  <ul class={grids[count]}>
+    {
+      quotes.map((q) => (
+        <li class="border-b border-base-300 py-8">
+          <figure class="grid gap-6">
+            <blockquote class={count === 1 ? "max-w-[40ch] font-serif text-h3 font-light italic" : "font-serif text-lead italic"}>
+              “{q.quote}”
+            </blockquote>
+            <figcaption class="flex items-center gap-4">
+              {q.photo && <Media src={q.photo.src} alt={q.photo.alt} width={112} height={112} variant="portrait" />}
+              <span class="grid">
+                <span class="font-semibold">{q.name}</span>
+                {q.role && <span class="text-small text-base-content/70">{q.role}</span>}
+              </span>
+            </figcaption>
+          </figure>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

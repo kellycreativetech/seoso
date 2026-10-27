@@ -1,0 +1,47 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Media from "../ui/Media.astro";
+import TextLink from "../ui/TextLink.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+// Ruled grid of cards: optional image, title, short text and a link. One column on mobile.
+type Columns = 2 | 3 | 4;
+const grids: Record<Columns, string> = {
+  2: "grid grid-cols-1 gap-x-12 border-t-2 border-base-content sm:grid-cols-2",
+  3: "grid grid-cols-1 gap-x-12 border-t-2 border-base-content sm:grid-cols-2 md:grid-cols-3",
+  4: "grid grid-cols-1 gap-x-10 border-t-2 border-base-content sm:grid-cols-2 md:grid-cols-4",
+};
+
+interface Props {
+  section: Extract<SectionData, { type: "cardGrid" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, intro, columns, cards, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+{
+  cards.length > 0 && (
+    <Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+      <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
+        {intro && <p slot="aside">{intro}</p>}
+      </SectionHeader>
+      <ul class={grids[columns]}>
+        {cards.map((card) => (
+          <li class="grid content-start gap-3 border-b border-base-300 py-8">
+            {card.image && <Media src={card.image.src} alt={card.image.alt} width={720} height={480} variant="card" sizes="(min-width: 768px) 25vw, 100vw" />}
+            <h3 class="font-serif text-title">{card.title}</h3>
+            {card.text && <p class="text-base-content/70">{card.text}</p>}
+            {card.link && (
+              <p>
+                <TextLink link={card.link} />
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}

@@ -1,17 +1,24 @@
 ---
 import type { Section } from "../../lib/sections";
+import CardGrid from "./CardGrid.astro";
 import Contacts from "./Contacts.astro";
+import CtaBand from "./CtaBand.astro";
 import EventsList from "./EventsList.astro";
+import Faq from "./Faq.astro";
 import Gallery from "./Gallery.astro";
 import Hero from "./Hero.astro";
 import HighlightBand from "./HighlightBand.astro";
+import Logos from "./Logos.astro";
 import NewsList from "./NewsList.astro";
 import People from "./People.astro";
 import RichText from "./RichText.astro";
+import Stats from "./Stats.astro";
+import Testimonials from "./Testimonials.astro";
+import TextMedia from "./TextMedia.astro";
 import Venues from "./Venues.astro";
 import Video from "./Video.astro";
 
-// Maps a section's `type` to its component. Unknown types render nothing.
+// Maps a section's `type` to its component. Snippets are expanded by PageBuilder; unknown types render nothing.
 interface Props {
   section: Section;
   index: number;
@@ -30,3 +37,10 @@ const { section, index, isFirst } = Astro.props;
 {section.type === "venues" && <Venues section={section} index={index} />}
 {section.type === "gallery" && <Gallery section={section} index={index} />}
 {section.type === "video" && <Video section={section} index={index} />}
+{section.type === "textMedia" && <TextMedia section={section} index={index} />}
+{section.type === "cardGrid" && <CardGrid section={section} index={index} />}
+{section.type === "testimonials" && <Testimonials section={section} index={index} />}
+{section.type === "ctaBand" && <CtaBand section={section} index={index} />}
+{section.type === "faq" && <Faq section={section} index={index} />}
+{section.type === "stats" && <Stats section={section} index={index} />}
+{section.type === "logos" && <Logos section={section} index={index} />}

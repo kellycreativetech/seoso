@@ -1,0 +1,35 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Markdown from "./Markdown.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+// Questions and answers as native <details> (daisyUI collapse): works without JavaScript and with the keyboard.
+interface Props {
+  section: Extract<SectionData, { type: "faq" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, items, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+{
+  items.length > 0 && (
+    <Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+      <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId} />
+      <div class="grid grid-cols-1 border-t-2 border-base-content md:grid-cols-12">
+        <div class="md:col-span-9 md:col-start-4">
+          {items.map((item) => (
+            <details class="collapse collapse-plus rounded-none border-b border-base-300">
+              <summary class="collapse-title px-0 font-serif text-title">{item.question}</summary>
+              <div class="collapse-content max-w-[62ch] px-0 text-base-content/85">
+                <Markdown value={item.answer} />
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}

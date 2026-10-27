@@ -1,0 +1,37 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Media from "../ui/Media.astro";
+import SmartLink from "../ui/SmartLink.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+// Sponsor and partner logos, each optionally linked. The logo's alt text is the sponsor's name.
+interface Props {
+  section: Extract<SectionData, { type: "logos" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, logos, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+{
+  logos.length > 0 && (
+    <Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+      <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId} />
+      <ul class="flex flex-wrap items-center gap-x-12 gap-y-8 border-t-2 border-base-content pt-10">
+        {logos.map((logo) => (
+          <li>
+            {logo.href ? (
+              <SmartLink href={logo.href} class="block">
+                <Media src={logo.image.src} alt={logo.name} width={320} height={112} variant="sponsor" />
+              </SmartLink>
+            ) : (
+              <Media src={logo.image.src} alt={logo.name} width={320} height={112} variant="sponsor" />
+            )}
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}
