@@ -1,0 +1,42 @@
+---
+import { getCollection } from "astro:content";
+import type { Section as SectionData } from "../../lib/sections";
+import TextLink from "../ui/TextLink.astro";
+import PostFeature from "./PostFeature.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+interface Props {
+  section: Extract<SectionData, { type: "newsList" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, limit, footerLink, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+const posts = (await getCollection("news"))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, limit)
+  .map((p) => ({ slug: p.id, ...p.data }));
+---
+
+<Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+  <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId} />
+  {
+    posts.length ? (
+      <div class="grid gap-16">
+        {posts.map((post, i) => (
+          <PostFeature post={post} label={i === 0 ? "Latest post" : undefined} />
+        ))}
+      </div>
+    ) : (
+      <p class="text-base-content/70">No news yet.</p>
+    )
+  }
+  {
+    footerLink && (
+      <div class="mt-10">
+        <TextLink link={footerLink} />
+      </div>
+    )
+  }
+</Section>

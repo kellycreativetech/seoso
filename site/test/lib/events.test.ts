@@ -40,3 +40,23 @@ describe("nextRollover", () => {
     expect(nextRollover([past], new Date("2026-10-22T00:00:00Z"))).toBeNull();
   });
 });
+
+import { selectEvents } from "../../src/lib/events";
+
+describe("selectEvents", () => {
+  const now = new Date("2026-10-22T00:00:00Z");
+  const events = [
+    { slug: "past", start: new Date("2026-10-20T23:00:00Z") },
+    { slug: "later", start: new Date("2027-03-20T18:30:00Z") },
+    { slug: "soon", start: new Date("2026-11-11T15:15:00Z") },
+  ];
+  test("upcoming: soonest first, past ones dropped", () => {
+    expect(selectEvents(events, "upcoming", now).map((e) => e.slug)).toEqual(["soon", "later"]);
+  });
+  test("past: most recent first", () => {
+    expect(selectEvents(events, "past", now).map((e) => e.slug)).toEqual(["past"]);
+  });
+  test("limit", () => {
+    expect(selectEvents(events, "upcoming", now, 1).map((e) => e.slug)).toEqual(["soon"]);
+  });
+});

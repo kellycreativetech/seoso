@@ -22,3 +22,12 @@ export function nextRollover(events: EventTimes[], now: Date): Date | null {
   const upcoming = events.filter((e) => !isPast(e, now)).map((e) => pastAt(e).getTime());
   return upcoming.length ? new Date(Math.min(...upcoming)) : null;
 }
+
+/** Events for a list: upcoming soonest-first, or past most-recent-first, optionally limited. */
+export function selectEvents<E extends EventTimes>(events: E[], scope: "upcoming" | "past", now: Date, limit?: number | null): E[] {
+  const past = scope === "past";
+  const list = events
+    .filter((e) => isPast(e, now) === past)
+    .sort((a, b) => (past ? b.start.getTime() - a.start.getTime() : a.start.getTime() - b.start.getTime()));
+  return limit ? list.slice(0, limit) : list;
+}

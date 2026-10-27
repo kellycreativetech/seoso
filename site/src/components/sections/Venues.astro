@@ -1,0 +1,48 @@
+---
+import { ExternalLink, MapPin } from "@lucide/astro";
+import { getCollection } from "astro:content";
+import type { Section as SectionData } from "../../lib/sections";
+import Media from "../ui/Media.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+// The chosen venues, in the order picked in the CMS.
+interface Props {
+  section: Extract<SectionData, { type: "venues" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, intro, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+const all = new Map((await getCollection("venues")).map((v) => [v.id, v.data]));
+const venues = section.venues.flatMap((slug) => all.get(slug) ?? []);
+---
+
+<Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+  <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
+    {intro && <p slot="aside">{intro}</p>}
+  </SectionHeader>
+  <ul class="grid grid-cols-1 gap-x-12 border-t-2 border-base-content md:grid-cols-2">
+    {
+      venues.map((venue) => (
+        <li class="grid content-start gap-3 border-b border-base-300 py-8">
+          {venue.image && <Media src={venue.image.src} alt={venue.image.alt} width={800} height={450} variant="card" sizes="(min-width: 768px) 50vw, 100vw" />}
+          <h3 class="font-serif text-title">{venue.name}</h3>
+          {venue.address && (
+            <p class="flex gap-2 whitespace-pre-line text-base-content/70">
+              <MapPin aria-hidden="true" class="mt-1 size-4 shrink-0 text-secondary" />
+              {venue.address}
+            </p>
+          )}
+          {venue.directions && <p class="max-w-[56ch] text-small text-base-content/70">{venue.directions}</p>}
+          {venue.website && (
+            <a href={venue.website} rel="noopener noreferrer" class="link link-secondary inline-flex items-center gap-1.5 text-small font-semibold">
+              Visit website<span class="sr-only"> for {venue.name}</span>
+              <ExternalLink aria-hidden="true" class="size-3.5" />
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</Section>

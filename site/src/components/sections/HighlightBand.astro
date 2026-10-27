@@ -1,0 +1,46 @@
+---
+import type { Section } from "../../lib/sections";
+import ButtonLink from "../ui/ButtonLink.astro";
+import Container from "../ui/Container.astro";
+import Eyebrow from "../ui/Eyebrow.astro";
+import Heading from "../ui/Heading.astro";
+import Media from "../ui/Media.astro";
+
+// Band with an optional square figure image (e.g. a product cutout) beside the copy.
+// Its background (black or the page surface) comes from the tone PageBuilder gives it.
+interface Props {
+  section: Extract<Section, { type: "highlightBand" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { figure, eyebrow, heading, body, buttons, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+<section id={anchorId ?? undefined} aria-labelledby={headingId}>
+  <Container>
+    <div class="grid grid-cols-1 items-center gap-x-12 gap-y-6 py-16 sm:py-24 md:grid-cols-12">
+      {
+        figure && (
+          <div class="mx-auto w-full max-w-sm md:col-span-5 md:max-w-none">
+            <Media src={figure.src} alt={figure.alt} width={800} height={800} variant="figure" sizes="(min-width: 74rem) 28rem, (min-width: 48rem) 40vw, 24rem" />
+          </div>
+        )
+      }
+      <div class={figure ? "grid gap-5 md:col-span-7 md:col-start-6" : "grid gap-5 md:col-span-8"}>
+        {eyebrow && <Eyebrow tone="muted">{eyebrow}</Eyebrow>}
+        <h2 id={headingId} class="font-serif text-h3 font-light text-balance sm:text-h2"><Heading text={heading} /></h2>
+        {body && <p class="max-w-[48ch] text-base-content/85">{body}</p>}
+        {
+          buttons.length > 0 && (
+            <div class="mt-2 flex flex-wrap gap-4">
+              {buttons.map((link, i) => (
+                <ButtonLink link={link} variant={i === 0 ? "brandOnBase" : "outlineOnBase"} />
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </Container>
+</section>

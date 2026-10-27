@@ -1,0 +1,58 @@
+---
+import type { Section } from "../../lib/sections";
+import ButtonLink from "../ui/ButtonLink.astro";
+import Container from "../ui/Container.astro";
+import Eyebrow from "../ui/Eyebrow.astro";
+import Heading from "../ui/Heading.astro";
+import Media from "../ui/Media.astro";
+
+// Black masthead. With an image, the photo fades in beneath the copy.
+interface Props {
+  section: Extract<Section, { type: "hero" }>;
+  index: number;
+  isFirst: boolean;
+}
+const { section, isFirst } = Astro.props;
+const { eyebrow, heading, lead, buttons, image } = section;
+const Tag = isFirst ? "h1" : "h2";
+---
+
+<section id={section.anchorId ?? undefined} class="overflow-hidden bg-neutral text-neutral-content">
+  <Container>
+    <div
+      class={image
+        ? "relative z-[2] grid grid-cols-1 gap-6 pt-12 sm:grid-cols-12 sm:pt-20 lg:pt-24"
+        : "relative z-[2] grid grid-cols-1 gap-6 pt-12 pb-16 sm:grid-cols-12 sm:pt-20 sm:pb-20 lg:pt-24 lg:pb-24"}
+    >
+      {
+        eyebrow && (
+          <div class="sm:col-span-12">
+            <Eyebrow tone="brand">{eyebrow}</Eyebrow>
+          </div>
+        )
+      }
+      <Tag
+        class="font-serif text-h1 font-light tracking-[-0.015em] text-balance sm:col-span-10 md:text-[4.25rem] md:leading-none lg:col-span-8 lg:text-display [&_em]:font-normal [&_em]:text-primary [&_em]:italic"
+      >
+        <Heading text={heading} />
+      </Tag>
+      {lead && <p class="max-w-[34ch] font-serif text-lead text-neutral-content/90 sm:col-span-8 lg:col-span-6">{lead}</p>}
+      {
+        buttons.length > 0 && (
+          <div class="mt-2 flex flex-wrap gap-4 sm:col-span-12">
+            {buttons.map((link, i) => (
+              <ButtonLink link={link} variant={i === 0 ? "brand" : "outlineOnDark"} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </Container>
+  {
+    image && (
+      <div class="relative z-[1] mt-6 sm:-mt-16 lg:-mt-24">
+        <Media src={image.src} alt={image.alt} width={1920} height={672} variant="hero" loading={isFirst ? "eager" : "lazy"} sizes="100vw" />
+      </div>
+    )
+  }
+</section>

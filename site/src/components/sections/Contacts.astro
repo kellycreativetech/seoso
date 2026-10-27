@@ -1,0 +1,54 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import { loadSite } from "../../lib/site-data";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+// Contacts plus the mailing address from Site settings.
+interface Props {
+  section: Extract<SectionData, { type: "contacts" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, intro, contacts, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+const { site } = await loadSite();
+const label = "text-small font-semibold tracking-[0.14em] text-secondary uppercase";
+---
+
+<Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+  <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
+    {intro && <p slot="aside">{intro}</p>}
+  </SectionHeader>
+  <div class="grid grid-cols-1 gap-x-12 border-t-2 border-base-content md:grid-cols-3">
+    {
+      site.mailingAddress && (
+        <div class="border-b border-base-300 py-6">
+          <h3 class={label}>Mailing address</h3>
+          <address class="mt-2 font-serif text-lead whitespace-pre-line not-italic">
+            {site.organizationName && `${site.organizationName}\n`}
+            {site.mailingAddress}
+          </address>
+        </div>
+      )
+    }
+    {
+      contacts.map((contact) => (
+        <div class="border-b border-base-300 py-6">
+          <h3 class={label}>{contact.purpose}</h3>
+          {contact.name && <p class="mt-2 font-serif text-lead">{contact.name}</p>}
+          {contact.email && (
+            <a href={`mailto:${contact.email}`} class="link link-secondary mt-1 inline-block break-all">
+              {contact.email}
+            </a>
+          )}
+          {contact.phone && (
+            <a href={`tel:${contact.phone.replace(/[^0-9+]/g, "")}`} class="link link-secondary mt-1 block">
+              {contact.phone}
+            </a>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</Section>

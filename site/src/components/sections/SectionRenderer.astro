@@ -1,13 +1,32 @@
 ---
 import type { Section } from "../../lib/sections";
+import Contacts from "./Contacts.astro";
+import EventsList from "./EventsList.astro";
+import Gallery from "./Gallery.astro";
+import Hero from "./Hero.astro";
+import HighlightBand from "./HighlightBand.astro";
+import NewsList from "./NewsList.astro";
+import People from "./People.astro";
+import RichText from "./RichText.astro";
+import Venues from "./Venues.astro";
+import Video from "./Video.astro";
 
 // Maps a section's `type` to its component. Unknown types render nothing.
 interface Props {
   section: Section;
+  index: number;
   isFirst: boolean;
 }
-const { section, isFirst } = Astro.props;
-void isFirst;
+const { section, index, isFirst } = Astro.props;
 ---
 
-{section.type === "richText" && <section class="py-16">{section.body}</section>}
+{section.type === "hero" && <Hero section={section} index={index} isFirst={isFirst} />}
+{section.type === "eventsList" && <EventsList section={section} index={index} />}
+{section.type === "highlightBand" && <HighlightBand section={section} index={index} />}
+{section.type === "newsList" && <NewsList section={section} index={index} />}
+{section.type === "richText" && <RichText section={section} index={index} />}
+{section.type === "people" && <People section={section} index={index} />}
+{section.type === "contacts" && <Contacts section={section} index={index} />}
+{section.type === "venues" && <Venues section={section} index={index} />}
+{section.type === "gallery" && <Gallery section={section} index={index} />}
+{section.type === "video" && <Video section={section} index={index} />}

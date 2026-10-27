@@ -1,0 +1,33 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import YouTube from "./YouTube.astro";
+
+interface Props {
+  section: Extract<SectionData, { type: "video" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, intro, videos, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+{
+  videos.length > 0 && (
+    <Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+      <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
+        {intro && <p slot="aside">{intro}</p>}
+      </SectionHeader>
+      <ul class="grid grid-cols-1 gap-x-12 gap-y-12 border-t-2 border-base-content pt-8 md:grid-cols-2">
+        {videos.map((video) => (
+          <li class="grid content-start gap-3">
+            <YouTube youtubeId={video.youtubeId} title={video.title} />
+            <h3 class="font-serif text-title">{video.title}</h3>
+            {video.description && <p class="text-base-content/70">{video.description}</p>}
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}

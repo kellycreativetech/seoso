@@ -1,0 +1,14 @@
+---
+import Container from "../ui/Container.astro";
+
+// A content section with the standard vertical rhythm.
+interface Props {
+  id?: string | null;
+  labelledBy?: string;
+}
+const { id, labelledBy } = Astro.props;
+---
+
+<section id={id ?? undefined} aria-labelledby={labelledBy} class="scroll-mt-8 py-16 sm:py-24 lg:py-30">
+  <Container><slot /></Container>
+</section>

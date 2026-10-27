@@ -1,0 +1,55 @@
+---
+import { getCollection } from "astro:content";
+import { selectEvents } from "../../lib/events";
+import type { Section as SectionData } from "../../lib/sections";
+import TextLink from "../ui/TextLink.astro";
+import EventList from "./EventList.astro";
+import Markdown from "./Markdown.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+// Upcoming or past concerts. "Now" is the build (or preview) time; the rollover Worker rebuilds when one falls off.
+interface Props {
+  section: Extract<SectionData, { type: "eventsList" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, note, scope, limit, footerLink, disclaimer, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+
+const [entries, venues] = await Promise.all([getCollection("events"), getCollection("venues")]);
+const venueBySlug = new Map(venues.map((v) => [v.id, v.data]));
+const all = entries.map((e) => ({
+  slug: e.id,
+  title: e.data.title,
+  isNamedProgram: e.data.isNamedProgram,
+  start: e.data.start,
+  end: e.data.end,
+  summary: e.data.summary,
+  venue: e.data.venue ? (venueBySlug.get(e.data.venue) ?? null) : null,
+}));
+const events = selectEvents(all, scope, new Date(), limit);
+---
+
+<Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+  <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
+    {note && <Markdown slot="aside" value={note} variant="note" />}
+  </SectionHeader>
+  {
+    events.length ? (
+      <EventList events={events} />
+    ) : (
+      <p class="border-t-2 border-base-content pt-8 text-base-content/70">
+        {scope === "past" ? "No past events yet." : "New dates are coming soon. Check back for the next season."}
+      </p>
+    )
+  }
+  {
+    (footerLink || disclaimer) && (
+      <div class="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+        {footerLink && <TextLink link={footerLink} />}
+        {disclaimer && <p class="text-small text-base-content/70">{disclaimer}</p>}
+      </div>
+    )
+  }
+</Section>

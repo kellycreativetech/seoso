@@ -1,0 +1,49 @@
+---
+import { formatDate } from "../../lib/dates";
+import Markdown from "./Markdown.astro";
+
+// A post on the 12-column grid: date column on the left, excerpt and facts on the right.
+export type PostSummary = {
+  slug: string;
+  title: string;
+  date: Date;
+  excerpt?: string | null;
+  summary?: string | null;
+  facts: { label: string; value: string }[];
+};
+const { post, label } = Astro.props as { post: PostSummary; label?: string };
+const href = `/news/${post.slug}`;
+---
+
+<article class="grid grid-cols-1 gap-6 border-t-2 border-base-content pt-8 md:grid-cols-12">
+  <div class="grid content-start gap-1 text-small text-base-content/70 md:col-span-3">
+    <time datetime={post.date.toISOString()} class="font-semibold tracking-[0.04em] text-base-content">
+      {formatDate(post.date.toISOString())}
+    </time>
+    {label && <span>{label}</span>}
+  </div>
+  <div class="grid min-w-0 gap-5 md:col-span-8 md:col-start-4">
+    <h3 class="font-serif text-title tracking-[-0.01em] text-balance sm:text-h3">
+      <a href={href} class="link link-hover decoration-primary decoration-2 underline-offset-[6px]">{post.title}</a>
+    </h3>
+    {post.excerpt && <p class="font-serif text-lead">{post.excerpt}</p>}
+    {post.summary && <div class="max-w-[62ch] text-base-content/70"><Markdown value={post.summary} variant="inline" /></div>}
+    {
+      post.facts.length > 0 && (
+        <dl class="flex flex-wrap gap-x-8 gap-y-2 border-y border-base-300 py-4 text-small">
+          {post.facts.map((fact) => (
+            <div class="flex gap-1.5">
+              <dt class="font-semibold">{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    <p>
+      <a href={href} class="link link-secondary font-semibold decoration-[1.5px] underline-offset-4">
+        Read the full post<span class="sr-only">: {post.title}</span>
+      </a>
+    </p>
+  </div>
+</article>

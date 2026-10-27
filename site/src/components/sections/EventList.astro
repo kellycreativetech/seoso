@@ -1,0 +1,62 @@
+---
+import { eventDateParts } from "../../lib/dates";
+
+// Programme-style list: date | what | where, with a year row whenever the year changes.
+export type EventSummary = {
+  slug: string;
+  title: string;
+  isNamedProgram?: boolean;
+  start: Date;
+  summary?: string | null;
+  venue?: { name: string; city: string } | null;
+};
+const { events } = Astro.props as { events: EventSummary[] };
+const rows = events.map((event, i) => {
+  const date = eventDateParts(event.start.toISOString());
+  const previousYear = i > 0 ? eventDateParts(events[i - 1].start.toISOString()).year : null;
+  return { event, date, startsYear: date.year !== previousYear };
+});
+---
+
+<ol class="list border-t-2 border-base-content text-body">
+  {
+    rows.map(({ event, date, startsYear }) => (
+      <>
+        {startsYear && (
+          <li aria-hidden="true" class="pt-6 pb-1 font-serif text-lead text-secondary italic">
+            {date.year}
+          </li>
+        )}
+        <li class="list-row grid-cols-[5.25rem_minmax(0,1fr)] items-start gap-x-6 gap-y-2 rounded-none border-b border-base-300 px-0 py-7 sm:grid-cols-[6.5rem_minmax(0,1fr)] md:grid-cols-[8.5rem_minmax(0,1fr)_minmax(0,15rem)] md:gap-x-12">
+          <p class="grid grid-cols-1 break-normal md:grid-cols-[auto_1fr] md:items-baseline md:gap-x-3">
+            <span class="order-2 font-serif text-[2.6rem] leading-[0.9] font-light tabular-nums md:order-none md:row-span-2 md:text-[3.4rem]">
+              {date.day}
+            </span>
+            <span class="order-1 self-end text-small font-bold tracking-[0.14em] uppercase md:order-none">{date.month}</span>
+            <span class="order-3 text-small whitespace-nowrap text-base-content/70 md:order-none">
+              {date.weekday} · {date.time}
+            </span>
+          </p>
+          <div class="min-w-0">
+            <h3
+              class={event.isNamedProgram
+                ? "font-serif text-title tracking-[-0.005em] italic"
+                : "font-serif text-title tracking-[-0.005em]"}
+            >
+              <a href={`/events/${event.slug}`} class="link link-hover decoration-primary decoration-2 underline-offset-4">
+                {event.title}
+              </a>
+            </h3>
+            {event.summary && <p class="mt-2 max-w-[52ch] text-base-content/70">{event.summary}</p>}
+          </div>
+          {event.venue && (
+            <p class="list-col-wrap col-start-2 min-w-0 text-small md:col-start-auto md:row-start-1 md:border-l md:border-base-300 md:pt-1 md:pl-5">
+              <b class="block text-body font-semibold">{event.venue.name}</b>
+              <span class="text-base-content/70">{event.venue.city}</span>
+            </p>
+          )}
+        </li>
+      </>
+    ))
+  }
+</ol>

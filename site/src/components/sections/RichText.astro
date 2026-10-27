@@ -1,0 +1,21 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Markdown from "./Markdown.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+interface Props {
+  section: Extract<SectionData, { type: "richText" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, body, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+<Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+  <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId} />
+  <div class="grid grid-cols-1 border-t-2 border-base-content pt-4 md:grid-cols-12">
+    <div class="max-w-[62ch] md:col-span-8 md:col-start-4"><Markdown value={body} /></div>
+  </div>
+</Section>

@@ -1,0 +1,36 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+interface Props {
+  section: Extract<SectionData, { type: "people" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, intro, people, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+{
+  people.length > 0 && (
+    <Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+      <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
+        {intro && <p slot="aside">{intro}</p>}
+      </SectionHeader>
+      <ul class="grid grid-cols-1 gap-x-12 border-t-2 border-base-content sm:grid-cols-2 lg:grid-cols-3">
+        {people.map((person) => (
+          <li class="border-b border-base-300 py-6">
+            <p class="font-serif text-title">{person.name}</p>
+            {person.role && <p class="mt-1 text-small font-semibold tracking-[0.14em] text-secondary uppercase">{person.role}</p>}
+            {person.email && (
+              <a href={`mailto:${person.email}`} class="link link-secondary mt-2 inline-block text-small">
+                {person.email}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}

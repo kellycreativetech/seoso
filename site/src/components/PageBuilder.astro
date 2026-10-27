@@ -27,7 +27,7 @@ const items = expandSnippets(sections, snippets);
       class={isStage(section, index) ? "bg-neutral text-base-content" : undefined}
       data-key-path={preview ? `sections.${sourceIndex}` : undefined}
     >
-      <SectionRenderer section={section} isFirst={index === 0} />
+      <SectionRenderer section={section} index={index} isFirst={index === 0} />
     </div>
   ))
 }

@@ -1,0 +1,34 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Media from "../ui/Media.astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+
+interface Props {
+  section: Extract<SectionData, { type: "gallery" }>;
+  index: number;
+}
+const { section, index } = Astro.props;
+const { eyebrow, heading, intro, images, anchorId } = section;
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+{
+  images.length > 0 && (
+    <Section id={anchorId} labelledBy={heading ? headingId : undefined}>
+      <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
+        {intro && <p slot="aside">{intro}</p>}
+      </SectionHeader>
+      <ul class="grid grid-cols-2 gap-3 border-t-2 border-base-content pt-6 sm:gap-4 md:grid-cols-3">
+        {images.map((image) => (
+          <li>
+            <figure>
+              <Media src={image.src} alt={image.alt} width={600} height={450} variant="gallery" sizes="(min-width: 768px) 33vw, 50vw" />
+              {image.caption && <figcaption class="mt-2 text-small text-base-content/70">{image.caption}</figcaption>}
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}
