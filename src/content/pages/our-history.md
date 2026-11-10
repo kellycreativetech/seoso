@@ -4,41 +4,12 @@ seo:
   description: Milestones, awards, photos and videos from five decades of the Southeastern Ohio Symphony Orchestra.
 sections:
   - type: hero
-    width: text
     eyebrow: About SEOSO
     heading: Our *history*
     lead: Highlights from decades of concerts, outreach and recognition, with photos and video from the archive.
-  - type: richText
-    anchorId: milestones
-    eyebrow: Recognition
-    heading: Milestones
-    body: |-
-      - 2000 began annual holiday Secrest concerts-attended by 12-1500 Muskingum and other county audience members annually. Also live broadcast yearly on Z92, WHIZ fm radio station and online across the world.
-      - 2001 ASCAP (American Society for Composers, Authors and Publishers)- award for Adventurous programming, YMCA/YWCA women of achievement award for Maestra Schumann
-      - began string quartet outreach concerts in the elementary schools 2006/7 evolved into Alato trio visits (see below)
-      - 2009 grant from Longaberger- create symphony prevideo for alato trio school visits —has 30k views, accessible from seoso website
-      - Alato trio in school concerts provided annually since 2009 for 3 to 4000 children annually
-      - 2011 Michelle Obama letter for our childrens concert involving aerobics with the symphony
-      - Childrens concerts—all my original creations:
-      - Superhero story with video
-      - Magician with music
-      - Cowboy with horse, sang with seoso- teamwork
-      - Aerobics-(letter from Michelle Obama)
-      - Around the world in 80 notes- balloon story
-      - 2013—anti bullying story—performed again for childrens concerts, performed by Mansfield symphony—
-      - 2013 National Endowment for the Arts invitation only grant for above program
-      - 2018 Governor John Kasich, proclamation of recognition for SEOSO AND Dr Laura
-  - type: richText
-    anchorId: in-memoriam
-    eyebrow: In memoriam
-    heading: Carol Lyle
-    body: |-
-      September 12, 1930 – January 10, 2008
-
-      Alato Trio educational outreach concerts, May 2010: [read the story](http://www.whiznews.com/content/news/local/2010/05/12/alato-trio-symphony-plays-for-hopewell-elementary).
   - type: gallery
     anchorId: archive
-    eyebrow: Archive
+    eyebrow: Photos
     heading: From the *archive*
     images:
       - src: ../../assets/uploads/carol-lyle-reception-val-wendy-jennifer-lyle-with-maestra-schumann-small-a6570c43.jpg
