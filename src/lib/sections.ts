@@ -54,7 +54,17 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
   const header = { anchorId: text, eyebrow: text, heading: text };
 
   return z.discriminatedUnion("type", [
-    z.object({ type: z.literal("hero"), anchorId: text, eyebrow: text, heading: z.string(), lead: text, buttons, image: optionalImage }),
+    z.object({
+      type: z.literal("hero"),
+      anchorId: text,
+      eyebrow: text,
+      heading: z.string(),
+      lead: text,
+      buttons,
+      image: optionalImage,
+      // "text" lines the copy up with the long-form text column (rich text); "wide" suits long headings.
+      width: z.preprocess((v) => (isBlank(v) ? "wide" : v), z.enum(["wide", "text"])),
+    }),
     z.object({
       type: z.literal("eventsList"),
       ...header,

@@ -126,6 +126,14 @@ x-fields:
           - { name: lead, label: Lead, widget: text, required: false }
           - *buttons
           - { name: image, label: Photo, widget: object, required: false, summary: "{{fields.alt}}", fields: *imageFields, hint: Optional wide photo that fades into the black banner. }
+          - name: width
+            label: Width
+            widget: select
+            default: wide
+            options:
+              - { label: Wide (best for long headings), value: wide }
+              - { label: Line up with the text below, value: text }
+            hint: “Line up with the text below” matches the column of a Rich text block, for a calmer, more cohesive page.
           - *anchorId
       - name: eventsList
         label: Events list

@@ -6,15 +6,40 @@ import Eyebrow from "../ui/Eyebrow.astro";
 import Heading from "../ui/Heading.astro";
 import Media from "../ui/Media.astro";
 
-// Black masthead. With an image, the photo fades in beneath the copy.
+// Black masthead. With an image, the photo fades in beneath the copy. `width: "text"` puts the copy in the same
+// column as long-form text (RichText: cols 4–11, 62ch); "wide" spans the measure for long headings.
 interface Props {
   section: Extract<Section, { type: "hero" }>;
   index: number;
   isFirst: boolean;
 }
 const { section, isFirst } = Astro.props;
-const { eyebrow, heading, lead, buttons, image } = section;
+const { eyebrow, heading, lead, buttons, image, width = "wide" } = section;
 const Tag = isFirst ? "h1" : "h2";
+type Width = "wide" | "text";
+// "wide": both wrappers are `contents`, so the copy sits on the hero's 12-column grid. "text": the same gapless
+// 12-column grid as RichText with the copy in cols 4–11, so both columns start at the same x.
+const layout: Record<Width, { row: string; copy: string; eyebrow: string; heading: string; lead: string; buttons: string }> = {
+  wide: {
+    row: "contents",
+    copy: "contents",
+    eyebrow: "sm:col-span-12",
+    heading:
+      "font-serif text-h1 font-light tracking-[-0.015em] text-balance sm:col-span-10 md:text-[4.25rem] md:leading-none lg:col-span-8 lg:text-display [&_em]:font-normal [&_em]:text-primary [&_em]:italic",
+    lead: "max-w-[34ch] font-serif text-lead text-neutral-content/90 sm:col-span-8 lg:col-span-6",
+    buttons: "mt-2 flex flex-wrap gap-4 sm:col-span-12",
+  },
+  text: {
+    row: "grid grid-cols-1 sm:col-span-12 md:grid-cols-12",
+    copy: "grid grid-cols-1 gap-6 max-w-[62ch] md:col-span-8 md:col-start-4",
+    eyebrow: "",
+    heading:
+      "font-serif text-h1 font-light tracking-[-0.015em] text-balance md:text-[4.25rem] md:leading-none lg:text-display [&_em]:font-normal [&_em]:text-primary [&_em]:italic",
+    lead: "font-serif text-lead text-neutral-content/90",
+    buttons: "mt-2 flex flex-wrap gap-4",
+  },
+};
+const classes = layout[width];
 ---
 
 <section id={section.anchorId ?? undefined} class="overflow-hidden bg-neutral text-neutral-content">
@@ -24,28 +49,30 @@ const Tag = isFirst ? "h1" : "h2";
         ? "relative z-[2] grid grid-cols-1 gap-6 pt-12 sm:grid-cols-12 sm:pt-20 lg:pt-24"
         : "relative z-[2] grid grid-cols-1 gap-6 pt-12 pb-16 sm:grid-cols-12 sm:pt-20 sm:pb-20 lg:pt-24 lg:pb-24"}
     >
-      {
-        eyebrow && (
-          <div class="sm:col-span-12">
-            <Eyebrow tone="brand">{eyebrow}</Eyebrow>
-          </div>
-        )
-      }
-      <Tag
-        class="font-serif text-h1 font-light tracking-[-0.015em] text-balance sm:col-span-10 md:text-[4.25rem] md:leading-none lg:col-span-8 lg:text-display [&_em]:font-normal [&_em]:text-primary [&_em]:italic"
-      >
-        <Heading text={heading} />
-      </Tag>
-      {lead && <p class="max-w-[34ch] font-serif text-lead text-neutral-content/90 sm:col-span-8 lg:col-span-6">{lead}</p>}
-      {
-        buttons.length > 0 && (
-          <div class="mt-2 flex flex-wrap gap-4 sm:col-span-12">
-            {buttons.map((link, i) => (
-              <ButtonLink link={link} variant={i === 0 ? "brand" : "outlineOnDark"} />
-            ))}
-          </div>
-        )
-      }
+      <div class={classes.row}>
+        <div class={classes.copy}>
+          {
+            eyebrow && (
+              <div class={classes.eyebrow || undefined}>
+                <Eyebrow tone="brand">{eyebrow}</Eyebrow>
+              </div>
+            )
+          }
+          <Tag class={classes.heading}>
+            <Heading text={heading} />
+          </Tag>
+          {lead && <p class={classes.lead}>{lead}</p>}
+          {
+            buttons.length > 0 && (
+              <div class={classes.buttons}>
+                {buttons.map((link, i) => (
+                  <ButtonLink link={link} variant={i === 0 ? "brand" : "outlineOnDark"} />
+                ))}
+              </div>
+            )
+          }
+        </div>
+      </div>
     </div>
   </Container>
   {

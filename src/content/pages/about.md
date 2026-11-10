@@ -4,6 +4,7 @@ seo:
   description: Founded in 1977, the Southeastern Ohio Symphony Orchestra shares music with friends and neighbors across Southeastern Ohio.
 sections:
   - type: hero
+    width: text
     eyebrow: About SEOSO
     heading: DA *CAPO*
     lead: "DA CAPO: it’s a phrase in Italian that every musician sees now and then. It means to return to the very start of the piece and play “from the beginning.”"

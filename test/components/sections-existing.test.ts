@@ -5,6 +5,7 @@ import Hero from "../../src/components/sections/Hero.astro";
 import HighlightBand from "../../src/components/sections/HighlightBand.astro";
 import RichText from "../../src/components/sections/RichText.astro";
 import Video from "../../src/components/sections/Video.astro";
+import { previewSectionSchema } from "../../src/lib/sections";
 import { render } from "../helpers";
 
 test("hero heading sets italic words as emphasis", async () => {
@@ -52,4 +53,25 @@ test("rich text renders Markdown and escapes raw HTML", async () => {
   const html = await render(RichText, { section: { type: "richText", body: "Hello **there** <script>x</script>" }, index: 0 });
   expect(html).toContain("<strong>there</strong>");
   expect(html).not.toContain("<script>x");
+});
+
+test("hero width defaults to wide; a blank CMS value counts as wide", () => {
+  const parse = (width: unknown) => previewSectionSchema.parse({ type: "hero", heading: "Hi", width });
+  expect(parse(undefined)).toMatchObject({ width: "wide" });
+  expect(parse("")).toMatchObject({ width: "wide" });
+  expect(parse("text")).toMatchObject({ width: "text" });
+});
+
+test("a hero set to the text width lines up with the long-form text column", async () => {
+  const text = await render(Hero, { section: { type: "hero", heading: "Da *capo*", buttons: [], width: "text" }, index: 0, isFirst: true });
+  const wide = await render(Hero, { section: { type: "hero", heading: "Da *capo*", buttons: [], width: "wide" }, index: 0, isFirst: true });
+  expect(text).toContain("max-w-[62ch] md:col-span-8 md:col-start-4");
+  expect(wide).not.toContain("md:col-start-4");
+});
+
+test("rich text without a heading has no top rule", async () => {
+  const bare = await render(RichText, { section: { type: "richText", body: "Text" }, index: 0 });
+  const headed = await render(RichText, { section: { type: "richText", heading: "Milestones", body: "Text" }, index: 0 });
+  expect(bare).not.toContain("border-t-2");
+  expect(headed).toContain("border-t-2");
 });

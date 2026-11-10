@@ -13,6 +13,8 @@ passed in the visitor's browser.
 
 **Tech Stack:** Astro 7, @astrojs/cloudflare 14, Tailwind 4 + daisyUI 5, Sveltia CMS 0.253.1, Vitest 5.
 
+> **Status: done** (branch `chore/root-cleanup-client-rollover`).
+
 **Spec:** decisions from the 2026-11-09 conversation (recorded in Global Constraints below).
 
 ## Global Constraints
@@ -41,29 +43,29 @@ passed in the visitor's browser.
 
 ### Task 1: CMS paths at the repo root
 **Files:** `public/admin/config.yml`, `public/admin/preview.js`, `src/lib/sections.ts`, `test/cms-config.test.ts`, `test/lib/sections.test.ts`
-- [ ] Fix `repoRoot` in the CMS test; run → the folder test now fails only on `site/` paths.
-- [ ] Add test: `normalizeUploadPath("/src/assets/uploads/a.jpg")` → `"../../assets/uploads/a.jpg"`; run → FAIL.
-- [ ] Replace `site/src/` → `src/` and `/site/src/assets/uploads` → `/src/assets/uploads` in all three files.
-- [ ] `npm test` → all pass. Commit.
+- [x] Fix `repoRoot` in the CMS test; run → the folder test now fails only on `site/` paths.
+- [x] Add test: `normalizeUploadPath("/src/assets/uploads/a.jpg")` → `"../../assets/uploads/a.jpg"`; run → FAIL.
+- [x] Replace `site/src/` → `src/` and `/site/src/assets/uploads` → `/src/assets/uploads` in all three files.
+- [x] `npm test` → all pass. Commit.
 
 ### Task 2: Client-side rollover
 **Files:** `src/lib/events.ts`, new `src/lib/rollover.ts`, `src/components/sections/EventsList.astro`,
 `src/components/sections/EventList.astro`, `src/components/detail/EventDetail.astro`; remove `src/lib/now.ts`,
 `src/pages/events.json.ts`, `nextRollover`; tests in `test/lib/`, `test/components/`.
 - **Produces:** `applyRollover(root: ParentNode, now: number): void` in `src/lib/rollover.ts`.
-- [ ] Tests: rows carry `data-past-at` = `pastAt(event).toISOString()`; upcoming HTML is not cut to `limit`;
+- [x] Tests: rows carry `data-past-at` = `pastAt(event).toISOString()`; upcoming HTML is not cut to `limit`;
   `applyRollover` hides passed rows, reapplies `data-limit`, hides orphan year rows, reveals the empty message.
-- [ ] Implement; remove `now.ts`, `events.json`, `nextRollover` and their tests/comments.
-- [ ] `npm test && npm run check && npm run build`; Blueprint inspector on changed components; browser check. Commit.
+- [x] Implement; remove `now.ts`, `events.json`, `nextRollover` and their tests/comments.
+- [x] `npm test && npm run check && npm run build`; Blueprint inspector on changed components; browser check. Commit.
 
 ### Task 3: Remove the one-off content import
-- [ ] Delete `scripts/`, `test/scripts/`, `migrate` script; move `yaml` to devDependencies; delete `site/`.
-- [ ] Only docs (Tasks 4–5) still mention the retired CMS. Tests/check/build pass. Commit.
+- [x] Delete `scripts/`, `test/scripts/`, `migrate` script; move `yaml` to devDependencies; delete `site/`.
+- [x] Only docs (Tasks 4–5) still mention the retired CMS. Tests/check/build pass. Commit.
 
 ### Task 4: Revise `docs/superpowers` spec and plan to describe what exists. Commit.
 
 ### Task 5: Preview sync test + AGENTS.md + README
-- [ ] `test/preview-sync.test.ts`: collections registered in `preview.js` == collections `parsePreview` accepts,
+- [x] `test/preview-sync.test.ts`: collections registered in `preview.js` == collections `parsePreview` accepts,
   and each exists in `config.yml`.
-- [ ] Rewrite AGENTS.md (incl. "Live preview — must keep working" with the preview.js sync checklist) and README.
-- [ ] No tracked file names the retired CMS; tests/check/build pass. Commit.
+- [x] Rewrite AGENTS.md (incl. "Live preview — must keep working" with the preview.js sync checklist) and README.
+- [x] No tracked file names the retired CMS; tests/check/build pass. Commit.

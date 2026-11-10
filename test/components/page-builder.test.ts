@@ -12,7 +12,7 @@ describe("PageBuilder tones", () => {
     expect(sectionWrappers(html).map(isStage)).toEqual([true, true, false, true, false]);
   });
   test("default: masthead and highlight bands are black", async () => {
-    const sections: Section[] = [{ type: "hero", heading: "Hi", buttons: [] }, text("x"), { type: "highlightBand", heading: "Band", buttons: [] }];
+    const sections: Section[] = [{ type: "hero", heading: "Hi", buttons: [], width: "wide" }, text("x"), { type: "highlightBand", heading: "Band", buttons: [] }];
     const html = await render(PageBuilder, { sections });
     expect(sectionWrappers(html).map(isStage)).toEqual([true, false, true]);
   });

@@ -96,12 +96,13 @@ route, update it there too.
 - **Pages** (`pages/*.md`): `title`, `seo`, `sections` — an ordered list of blocks; list order = page order.
 - **Snippets** (`snippets/*.md`): `name`, `sections` — reusable blocks, included with the `snippet` block.
 - **Events** (`events/*.md`): `title`, `isNamedProgram`, `start`, `end`, `venue` (venue slug), `summary`,
-  `admission`, `tickets`, Markdown body. Times are stored in UTC and **always displayed in America/New_York**
+  `admission`, `tickets` (URL), `image`, `seo`, Markdown body. Times are stored in UTC and **always displayed in America/New_York**
   (`src/lib/dates.ts`); the CMS enters them in Eastern time.
-- **News** (`news/*.md`): `title`, `date`, `excerpt`, `summary`, `facts` (label/value), body.
+- **News** (`news/*.md`): `title`, `date`, `excerpt`, `summary`, `facts` (label/value), `image`, `seo`, body.
 - **Venues** (`venues/*.md`): `name`, `city`, `address`, `directions`, `website`, `image`.
-- **Settings** (`settings/site.json`, `navigation.json`, `footer.json`): site title, tagline, logo, Donate link,
-  address, email, social, home page; nav tree; footer links and note.
+- **Settings**: `site.json` — `title`, `organizationName`, `tagline`, `description`, `logo`, `defaultSeoImage`,
+  `homePage`, `donateLink`, `mailingAddress`, `email`, `social`; `navigation.json` — `items` (links with
+  `children`); `footer.json` — `links`, `note`.
 - **Blocks** (`SECTION_TYPES` in `src/lib/sections.ts`): hero, eventsList, highlightBand, newsList, richText,
   people, contacts, venues, gallery, video, textMedia, cardGrid, testimonials, ctaBand, faq, stats, logos, snippet.
 - Headings are one line of inline Markdown: `*italic*` and `~~strike~~` only (`src/lib/inline.ts`).
