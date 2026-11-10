@@ -1,8 +1,7 @@
 ---
 import { ExternalLink } from "@lucide/astro";
 import { eventDateParts, formatTime } from "../../lib/dates";
-import { isPast } from "../../lib/events";
-import { buildNow } from "../../lib/now";
+import { isPast, pastAt } from "../../lib/events";
 import ButtonLink from "../ui/ButtonLink.astro";
 import Container from "../ui/Container.astro";
 import Markdown from "../sections/Markdown.astro";
@@ -22,7 +21,10 @@ export type EventView = {
 };
 const { event } = Astro.props as { event: EventView };
 const date = eventDateParts(event.start.toISOString());
-const past = isPast(event, buildNow(Astro.isPrerendered));
+// Past as of render time (the build, or the CMS preview). The ticket button and the no-details note also switch
+// in the browser when the event passes (lib/rollover.ts), so a concert that ends between builds stops selling.
+const past = isPast(event, new Date());
+const droppedAt = pastAt(event).toISOString();
 const venue = event.venue;
 const label = "text-small font-semibold tracking-[0.14em] text-secondary uppercase";
 ---
@@ -39,7 +41,7 @@ const label = "text-small font-semibold tracking-[0.14em] text-secondary upperca
 >
   {
     event.tickets && !past && (
-      <div>
+      <div data-show-until={droppedAt}>
         <ButtonLink link={{ label: "Get tickets", href: event.tickets }} />
       </div>
     )
@@ -83,7 +85,10 @@ const label = "text-small font-semibold tracking-[0.14em] text-secondary upperca
           event.body ? (
             <Markdown value={event.body} />
           ) : (
-            <p class="text-base-content/70">{past ? "This event has taken place." : "More details about this program are coming soon."}</p>
+            <>
+              <p data-show-until={droppedAt} hidden={past || undefined} class="text-base-content/70">More details about this program are coming soon.</p>
+              <p data-show-from={droppedAt} hidden={!past || undefined} class="text-base-content/70">This event has taken place.</p>
+            </>
           )
         }
         {
@@ -98,3 +103,8 @@ const label = "text-small font-semibold tracking-[0.14em] text-secondary upperca
     </div>
   </Container>
 </section>
+
+<script>
+  import { applyRollover } from "../../lib/rollover";
+  applyRollover(document);
+</script>

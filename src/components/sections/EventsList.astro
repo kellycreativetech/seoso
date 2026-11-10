@@ -2,7 +2,6 @@
 import { CalendarPlus } from "@lucide/astro";
 import { loadEvents } from "../../lib/event-data";
 import { selectEvents } from "../../lib/events";
-import { buildNow } from "../../lib/now";
 import type { Section as SectionData } from "../../lib/sections";
 import TextLink from "../ui/TextLink.astro";
 import EventList from "./EventList.astro";
@@ -10,7 +9,9 @@ import Markdown from "./Markdown.astro";
 import Section from "./Section.astro";
 import SectionHeader from "./SectionHeader.astro";
 
-// Upcoming or past concerts. "Now" is the build (or preview) time; the rollover Worker rebuilds when one falls off.
+// Upcoming or past concerts as of render time (the build, or the CMS preview request). Upcoming lists print every
+// upcoming concert and let the browser drop the ones that have passed since (lib/rollover.ts), so no rebuild is
+// needed when a concert ends. Past lists only change on the next build.
 interface Props {
   section: Extract<SectionData, { type: "eventsList" }>;
   index: number;
@@ -19,7 +20,9 @@ const { section, index } = Astro.props;
 const { eyebrow, heading, note, scope, limit, footerLink, disclaimer, anchorId } = section;
 const headingId = `heading-${anchorId ?? index}`;
 
-const events = selectEvents(await loadEvents(), scope, buildNow(Astro.isPrerendered), limit);
+const upcoming = scope === "upcoming";
+// Upcoming: every event, limited in the markup (rows beyond the limit start hidden) so the browser can reveal the next.
+const events = selectEvents(await loadEvents(), scope, new Date(), upcoming ? null : limit);
 // Upcoming lists offer the season as a calendar subscription (see pages/events.ics.ts).
 const calendarUrl = new URL("/events.ics", Astro.site ?? "http://localhost:4321");
 const webcal = calendarUrl.href.replace(/^https?:/, "webcal:");
@@ -29,20 +32,17 @@ const webcal = calendarUrl.href.replace(/^https?:/, "webcal:");
   <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
     {note && <Markdown slot="aside" value={note} variant="note" />}
   </SectionHeader>
-  {
-    events.length ? (
-      <EventList events={events} />
-    ) : (
-      <p class="border-t-2 border-base-content pt-8 text-base-content/70">
-        {scope === "past" ? "No past events yet." : "New dates are coming soon. Check back for the next season."}
-      </p>
-    )
-  }
+  <div>
+    {events.length > 0 && <EventList events={events} upcoming={upcoming} limit={limit} />}
+    <p data-rollover-empty hidden={events.length > 0 || undefined} class="border-t-2 border-base-content pt-8 text-base-content/70">
+      {upcoming ? "New dates are coming soon. Check back for the next season." : "No past events yet."}
+    </p>
+  </div>
   <div class="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
     <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
       {footerLink && <TextLink link={footerLink} />}
       {
-        scope === "upcoming" && (
+        upcoming && (
           <span class="inline-flex flex-wrap items-center gap-x-2 text-small font-semibold">
             <CalendarPlus aria-hidden="true" class="size-4" />
             <a href={webcal} class="link link-hover">Subscribe to the season calendar</a>
@@ -55,3 +55,8 @@ const webcal = calendarUrl.href.replace(/^https?:/, "webcal:");
     {disclaimer && <p class="text-small text-base-content/70">{disclaimer}</p>}
   </div>
 </Section>
+
+<script>
+  import { applyRollover } from "../../lib/rollover";
+  applyRollover(document);
+</script>

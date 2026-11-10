@@ -1,24 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { buildEventsFeed, buildIcs } from "../../src/lib/feeds";
+import { buildIcs } from "../../src/lib/feeds";
 
-const now = new Date("2026-10-22T00:00:00Z");
-const past = { slug: "string-ensemble-2026-10-20", title: "String ensemble", start: new Date("2026-10-20T23:00:00Z") };
 const soon = { slug: "veterans-day-ceremony-2026-11-11", title: "Veteran’s Day Ceremony", start: new Date("2026-11-11T15:15:00Z") };
-
-describe("events.json", () => {
-  test("records when the next concert falls off and when the site was built", () => {
-    const feed = buildEventsFeed([past, soon], now);
-    expect(feed.builtAt).toBe("2026-10-22T00:00:00.000Z");
-    expect(feed.nextRollover).toBe("2026-11-12T05:00:00.000Z");
-    expect(feed.events).toEqual([
-      { slug: past.slug, title: past.title, start: "2026-10-20T23:00:00.000Z", end: null },
-      { slug: soon.slug, title: soon.title, start: "2026-11-11T15:15:00.000Z", end: null },
-    ]);
-  });
-  test("no upcoming concerts → no rollover", () => {
-    expect(buildEventsFeed([past], now).nextRollover).toBeNull();
-  });
-});
 
 describe("events.ics", () => {
   const ics = buildIcs(

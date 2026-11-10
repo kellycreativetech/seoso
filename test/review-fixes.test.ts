@@ -1,6 +1,5 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { renderInline } from "../src/lib/inline";
-import { buildNow } from "../src/lib/now";
 import { previewSectionSchema } from "../src/lib/sections";
 import { siteUrl } from "../site-url.mjs";
 
@@ -35,11 +34,6 @@ test("**bold** in a heading reads as plain text, not broken italics", () => {
   expect(renderInline("**Free** concerts for *all*")).toBe("Free concerts for <em>all</em>");
 });
 
-test("one build uses one 'now'; on-demand renders use the request time", () => {
-  expect(buildNow(true)).toBe(buildNow(true));
-  expect(buildNow(false)).not.toBe(buildNow(true));
-});
-
 describe("SITE_URL", () => {
   test("used when set", () => {
     expect(siteUrl({ SITE_URL: "https://seoso.example.workers.dev" })).toBe("https://seoso.example.workers.dev");
@@ -50,15 +44,4 @@ describe("SITE_URL", () => {
   test("local development falls back to localhost", () => {
     expect(siteUrl({})).toBe("http://localhost:4321");
   });
-});
-
-test("the build time is read when the first page renders, not when the module loads", async () => {
-  // Cloudflare's runtime (where Astro prerenders) reports 1970 for code that runs at module load.
-  vi.useFakeTimers();
-  vi.setSystemTime(new Date("1970-01-01T00:00:00Z"));
-  vi.resetModules();
-  const { buildNow: freshBuildNow } = await import("../src/lib/now");
-  vi.setSystemTime(new Date("2026-10-27T05:00:00Z"));
-  expect(freshBuildNow(true).toISOString()).toBe("2026-10-27T05:00:00.000Z");
-  vi.useRealTimers();
 });

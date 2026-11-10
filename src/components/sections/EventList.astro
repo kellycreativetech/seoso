@@ -1,33 +1,46 @@
 ---
 import { eventDateParts } from "../../lib/dates";
+import { pastAt } from "../../lib/events";
+import { rolloverVisibility, type RolloverItem } from "../../lib/rollover";
 
 // Programme-style list: date | what | where, with a year row whenever the year changes.
+// Upcoming lists take part in the rollover (lib/rollover.ts): every upcoming event is printed, rows beyond `limit`
+// start hidden, and the browser hides rows whose concert has passed, revealing the next ones.
 export type EventSummary = {
   slug: string;
   title: string;
   isNamedProgram?: boolean;
   start: Date;
+  end?: Date | null;
   summary?: string | null;
   venue?: { name: string; city: string } | null;
 };
-const { events } = Astro.props as { events: EventSummary[] };
+const { events, upcoming = false, limit } = Astro.props as { events: EventSummary[]; upcoming?: boolean; limit?: number | null };
 const rows = events.map((event, i) => {
   const date = eventDateParts(event.start.toISOString());
   const previousYear = i > 0 ? eventDateParts(events[i - 1].start.toISOString()).year : null;
-  return { event, date, startsYear: date.year !== previousYear };
+  return { event, date, startsYear: date.year !== previousYear, pastAt: upcoming ? pastAt(event) : null };
 });
+// Initial visibility, computed as the browser would at render time; past lists show everything.
+const items: RolloverItem[] = rows.flatMap((row) => [
+  ...(row.startsYear ? [{ kind: "year" } as const] : []),
+  { kind: "event", pastAt: row.pastAt?.getTime() ?? Infinity } as const,
+]);
+const { visible } = rolloverVisibility(items, Date.now(), upcoming ? limit : null);
+let cursor = 0;
+const hiddenNext = () => (upcoming && !visible[cursor++]) || undefined;
 ---
 
-<ol class="list border-t-2 border-base-content text-body">
+<ol data-rollover={upcoming || undefined} data-limit={(upcoming && limit) || undefined} class="list border-t-2 border-base-content text-body">
   {
-    rows.map(({ event, date, startsYear }) => (
+    rows.map(({ event, date, startsYear, pastAt }) => (
       <>
         {startsYear && (
-          <li aria-hidden="true" class="pt-6 pb-1 font-serif text-lead text-secondary italic">
+          <li aria-hidden="true" hidden={hiddenNext()} class="pt-6 pb-1 font-serif text-lead text-secondary italic">
             {date.year}
           </li>
         )}
-        <li class="list-row grid-cols-[5.25rem_minmax(0,1fr)] items-start gap-x-6 gap-y-2 rounded-none border-b border-base-300 px-0 py-7 sm:grid-cols-[6.5rem_minmax(0,1fr)] md:grid-cols-[8.5rem_minmax(0,1fr)_minmax(0,15rem)] md:gap-x-12">
+        <li data-past-at={pastAt?.toISOString()} hidden={hiddenNext()} class="list-row grid-cols-[5.25rem_minmax(0,1fr)] items-start gap-x-6 gap-y-2 rounded-none border-b border-base-300 px-0 py-7 sm:grid-cols-[6.5rem_minmax(0,1fr)] md:grid-cols-[8.5rem_minmax(0,1fr)_minmax(0,15rem)] md:gap-x-12">
           <p class="grid grid-cols-1 break-normal md:grid-cols-[auto_1fr] md:items-baseline md:gap-x-3">
             <span class="order-2 font-serif text-[2.6rem] leading-[0.9] font-light tabular-nums md:order-none md:row-span-2 md:text-[3.4rem]">
               {date.day}

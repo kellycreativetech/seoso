@@ -1,21 +1,4 @@
-import { nextRollover } from "./events";
-
 type FeedEvent = { slug: string; title: string; start: Date; end?: Date | null };
-
-/** /events.json — read by the rollover Worker. Kept small: no bodies or images. */
-export function buildEventsFeed(events: FeedEvent[], now: Date) {
-  const next = nextRollover(events, now);
-  return {
-    builtAt: now.toISOString(),
-    nextRollover: next ? next.toISOString() : null,
-    events: events.map(({ slug, title, start, end }) => ({
-      slug,
-      title,
-      start: start.toISOString(),
-      end: end ? end.toISOString() : null,
-    })),
-  };
-}
 
 type IcsEvent = FeedEvent & { summary?: string | null; venue?: { name: string; city: string; address?: string | null } | null };
 

@@ -1,5 +1,6 @@
 // The one rule for when a concert leaves the "upcoming" list: from midnight Eastern on the day after it ends
-// (its start, if it has no end). The build, /events.json and the rollover Worker all depend on this.
+// (its start, if it has no end). Lists and event pages use it at render time, and the browser uses it through
+// the `data-past-at` instants (lib/rollover.ts).
 const TZ = "America/New_York";
 
 export type EventTimes = { start: Date; end?: Date | null };
@@ -16,11 +17,6 @@ export function pastAt({ start, end }: EventTimes): Date {
 
 export function isPast(event: EventTimes, now: Date): boolean {
   return now.getTime() >= pastAt(event).getTime();
-}
-
-export function nextRollover(events: EventTimes[], now: Date): Date | null {
-  const upcoming = events.filter((e) => !isPast(e, now)).map((e) => pastAt(e).getTime());
-  return upcoming.length ? new Date(Math.min(...upcoming)) : null;
 }
 
 /** Events for a list: upcoming soonest-first, or past most-recent-first, optionally limited. */

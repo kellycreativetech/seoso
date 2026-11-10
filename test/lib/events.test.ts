@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { isPast, nextRollover, pastAt } from "../../src/lib/events";
+import { isPast, pastAt } from "../../src/lib/events";
 
 describe("pastAt: midnight Eastern after the event's day", () => {
   test("evening event", () => {
@@ -27,17 +27,6 @@ describe("isPast", () => {
   });
   test("past at midnight", () => {
     expect(isPast(e, new Date("2026-10-21T04:00:00Z"))).toBe(true);
-  });
-});
-
-describe("nextRollover", () => {
-  const past = { start: new Date("2026-10-20T23:00:00Z") };
-  test("earliest upcoming event's fall-off time", () => {
-    const next = nextRollover([past, { start: new Date("2026-11-11T15:15:00Z") }], new Date("2026-10-22T00:00:00Z"));
-    expect(next?.toISOString()).toBe("2026-11-12T05:00:00.000Z");
-  });
-  test("null when nothing is upcoming", () => {
-    expect(nextRollover([past], new Date("2026-10-22T00:00:00Z"))).toBeNull();
   });
 });
 
