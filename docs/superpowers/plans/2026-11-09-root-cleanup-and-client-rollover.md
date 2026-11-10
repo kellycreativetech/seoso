@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make the root-level Astro site consistent after the move out of `site/`: working CMS paths, past concerts
-dropping off upcoming lists in the browser (no rollover Worker), no trace of the previous CMS, and an accurate
+dropping off upcoming lists in the browser (no rollover Worker), no trace of the retired CMS, and an accurate
 AGENTS.md / README / superpowers docs.
 
 **Architecture:** Prerendered Astro site on Cloudflare Workers (static assets + one on-demand route, `/api/preview`).
@@ -20,12 +20,12 @@ passed in the visitor's browser.
 - Hosting stays on Cloudflare Workers (Workers Builds), not Pages.
 - CMS backend stays GitHub `kellycreativetech/seoso`, branch `main`, sign-in via the existing authenticator Worker.
 - No rollover Worker and no scheduled rebuild. Past concerts are removed client-side by comparing `data-past-at` to
-  the browser clock. All upcoming-at-build events are printed in the HTML (SEO); the block's `limit` is applied by
-  the script; without JS the full build-time list shows.
+  the browser clock. All upcoming-at-build events are printed in the HTML (SEO); rows beyond the block's `limit`
+  start hidden and the script reveals the next one when an event passes.
 - The drop-off rule is unchanged: midnight America/New_York on the day after the event ends (`pastAt`).
 - Live preview in Sveltia must keep working; preview components stay Astro (server-rendered via `/api/preview`).
-- Remove every mention of the previous CMS from tracked files (`git grep -i sanity` empty). Leave git history and
-  branches `old-sanity` / `sveltia` alone.
+- Remove every mention of the retired CMS and the one-off content import from tracked files. Leave git history and
+  other branches alone.
 - Keep `docs/superpowers/` files, revised to be accurate.
 - daisyUI rules from AGENTS.md: semantic colors, no authored CSS selectors, static class strings.
 
@@ -56,9 +56,9 @@ passed in the visitor's browser.
 - [ ] Implement; remove `now.ts`, `events.json`, `nextRollover` and their tests/comments.
 - [ ] `npm test && npm run check && npm run build`; Blueprint inspector on changed components; browser check. Commit.
 
-### Task 3: Remove the previous CMS
+### Task 3: Remove the one-off content import
 - [ ] Delete `scripts/`, `test/scripts/`, `migrate` script; move `yaml` to devDependencies; delete `site/`.
-- [ ] `git grep -i sanity` → only docs handled in Tasks 4–5. Tests/check/build pass. Commit.
+- [ ] Only docs (Tasks 4–5) still mention the retired CMS. Tests/check/build pass. Commit.
 
 ### Task 4: Revise `docs/superpowers` spec and plan to describe what exists. Commit.
 
@@ -66,4 +66,4 @@ passed in the visitor's browser.
 - [ ] `test/preview-sync.test.ts`: collections registered in `preview.js` == collections `parsePreview` accepts,
   and each exists in `config.yml`.
 - [ ] Rewrite AGENTS.md (incl. "Live preview — must keep working" with the preview.js sync checklist) and README.
-- [ ] `git grep -i sanity` empty; tests/check/build pass. Commit.
+- [ ] No tracked file names the retired CMS; tests/check/build pass. Commit.
