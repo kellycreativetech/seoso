@@ -42,12 +42,29 @@ test("event list: programme rows with year headings and venue", async () => {
   expect(html).toContain("7 pm");
 });
 test("an empty gallery renders nothing", async () => {
-  expect((await render(Gallery, { section: { type: "gallery", images: [] }, index: 0 })).trim()).toBe("");
+  // The lightbox script tag may still be emitted; it does nothing without a [data-lightbox] container.
+  expect(await render(Gallery, { section: { type: "gallery", images: [] }, index: 0 })).not.toMatch(/<section|<ul/);
 });
-test("videos embed through youtube-nocookie with a title", async () => {
+test("videos show a black-and-white YouTube thumbnail that opens the lightbox", async () => {
   const html = await render(Video, { section: { type: "video", videos: [{ youtubeId: "Wvj1FS44Jok", title: "Instruments" }] }, index: 0 });
-  expect(html).toContain('src="https://www.youtube-nocookie.com/embed/Wvj1FS44Jok"');
-  expect(html).toContain('title="Instruments"');
+  expect(html).toMatch(/data-lightbox/);
+  // Without JavaScript the link still plays the video on YouTube.
+  expect(html).toMatch(/<a[^>]*href="https:\/\/www\.youtube\.com\/watch\?v=Wvj1FS44Jok"[^>]*data-youtube-id="Wvj1FS44Jok"/);
+  expect(html).toContain('src="https://i.ytimg.com/vi/Wvj1FS44Jok/hqdefault.jpg"');
+  expect(html).toContain('aria-label="Play video: Instruments"');
+  expect(html).toMatch(/<a[^>]*class="[^"]*grayscale/);
+  expect(html).not.toContain("<iframe");
+});
+
+test("gallery photos are black-and-white thumbnails linking to the full image for the lightbox", async () => {
+  const html = await render(Gallery, {
+    section: { type: "gallery", images: [{ src: "https://example.com/a.jpg", alt: "A concert" }] },
+    index: 0,
+  });
+  expect(html).toMatch(/<ul[^>]*data-lightbox/);
+  expect(html).toMatch(/<a[^>]*href="https:\/\/example\.com\/a\.jpg"[^>]*data-pswp-width="\d+"[^>]*data-pswp-height="\d+"/);
+  expect(html).toMatch(/<a[^>]*class="[^"]*grayscale/);
+  expect(html).toContain('alt="A concert"');
 });
 test("rich text renders Markdown and escapes raw HTML", async () => {
   const html = await render(RichText, { section: { type: "richText", body: "Hello **there** <script>x</script>" }, index: 0 });

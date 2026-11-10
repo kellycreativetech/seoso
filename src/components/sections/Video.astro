@@ -1,9 +1,12 @@
 ---
+import { Play } from "@lucide/astro";
 import type { Section as SectionData } from "../../lib/sections";
+import Media from "../ui/Media.astro";
 import Section from "./Section.astro";
 import SectionHeader from "./SectionHeader.astro";
-import YouTube from "./YouTube.astro";
 
+// Black-and-white YouTube thumbnails that play in the lightbox (lib/lightbox.ts) through youtube-nocookie.
+// Without JavaScript each thumbnail links to the video on YouTube.
 interface Props {
   section: Extract<SectionData, { type: "video" }>;
   index: number;
@@ -19,10 +22,27 @@ const headingId = `heading-${anchorId ?? index}`;
       <SectionHeader eyebrow={eyebrow} heading={heading} headingId={headingId}>
         {intro && <p slot="aside">{intro}</p>}
       </SectionHeader>
-      <ul class="grid grid-cols-1 gap-x-12 gap-y-12 border-t-2 border-base-content pt-8 md:grid-cols-2">
+      <ul data-lightbox class="grid grid-cols-1 gap-x-12 gap-y-12 border-t-2 border-base-content pt-8 md:grid-cols-2">
         {videos.map((video) => (
           <li class="grid content-start gap-3">
-            <YouTube youtubeId={video.youtubeId} title={video.title} />
+            <a
+              href={`https://www.youtube.com/watch?v=${encodeURIComponent(video.youtubeId)}`}
+              data-youtube-id={video.youtubeId}
+              data-title={video.title}
+              aria-label={`Play video: ${video.title}`}
+              class="relative block grayscale focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+            >
+              <Media
+                src={`https://i.ytimg.com/vi/${encodeURIComponent(video.youtubeId)}/hqdefault.jpg`}
+                alt=""
+                width={480}
+                height={270}
+                variant="video"
+              />
+              <span class="btn btn-square btn-lg absolute inset-0 m-auto border-0 bg-neutral/80 text-neutral-content" aria-hidden="true">
+                <Play class="size-6" />
+              </span>
+            </a>
             <h3 class="font-serif text-title">{video.title}</h3>
             {video.description && <p class="text-base-content/70">{video.description}</p>}
           </li>
@@ -31,3 +51,8 @@ const headingId = `heading-${anchorId ?? index}`;
     </Section>
   )
 }
+
+<script>
+  import { initLightbox } from "../../lib/lightbox";
+  initLightbox();
+</script>

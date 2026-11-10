@@ -3,7 +3,7 @@ import type { ImageMetadata } from "astro";
 import { Image } from "astro:assets";
 
 // Images are optimized at build (ImageMetadata); the CMS preview passes plain URLs, including unsaved blob: uploads.
-type Variant = "logo" | "logoSmall" | "hero" | "figure" | "gallery" | "card" | "media" | "portrait" | "sponsor";
+type Variant = "logo" | "logoSmall" | "hero" | "figure" | "gallery" | "video" | "card" | "media" | "portrait" | "sponsor";
 
 const variants: Record<Variant, string> = {
   logo: "h-10 w-auto lg:h-12",
@@ -11,6 +11,8 @@ const variants: Record<Variant, string> = {
   hero: "aspect-[5/4] h-auto w-full object-cover object-[50%_54%] [mask-image:linear-gradient(to_bottom,transparent_0,#000_30%,#000_75%,transparent_100%)] sm:aspect-[16/5.6]",
   figure: "aspect-square h-auto w-full object-contain",
   gallery: "aspect-[4/3] h-auto w-full bg-base-200 object-cover",
+  // YouTube's hqdefault thumbnail is 4:3 with black bars around 16:9 video; crop to the picture.
+  video: "aspect-video h-auto w-full bg-neutral object-cover",
   card: "aspect-[3/2] h-auto w-full bg-base-200 object-cover",
   media: "h-auto w-full bg-base-200 object-cover",
   portrait: "size-14 shrink-0 bg-base-200 object-cover",

@@ -22,7 +22,8 @@ code are in `AGENTS.md`.
 - **Images:** `src/assets/uploads/`, referenced relative to the content file (`../../assets/uploads/…`) and
   optimized at build.
 - **Page blocks:** one Astro component per block in `src/components/sections/`, chosen by `SectionRenderer.astro`.
-  `PageBuilder.astro` sets black/white backgrounds (the home page alternates).
+  `PageBuilder.astro` sets black/white backgrounds (the home page alternates). Gallery and video blocks open in a
+  PhotoSwipe overlay (`src/lib/lightbox.ts`).
 - **CMS:** `public/admin/config.yml` (Sveltia CMS, pinned version in `index.html`). Editors commit straight to
   `main`; every commit triggers a Cloudflare build.
 - **Live preview:** `public/admin/preview.js` posts the entry being edited to `/api/preview`

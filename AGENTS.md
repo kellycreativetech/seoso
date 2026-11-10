@@ -19,6 +19,7 @@ Read this whole file before changing anything, and **keep it accurate**: when a 
 | Styling | Tailwind 4 (Vite plugin) + daisyUI 5 plugin; fonts self-hosted via Fontsource | `src/styles/global.css` |
 | Markdown | `marked` (raw HTML is escaped) | `src/lib/markdown.ts` |
 | Icons | `@lucide/astro` | |
+| Lightbox | PhotoSwipe 5.4.4 (pinned), loaded only on pages with a gallery or video block | `src/lib/lightbox.ts` |
 | Tests | Vitest 5 + Astro Container API (component rendering) | `test/` |
 
 No React, Vue or Svelte in the site. The only React is the copy Sveltia bundles (`CMS.React`), used by
@@ -32,7 +33,7 @@ seoso/
 ├── site-url.mjs            SITE_URL (required on Cloudflare builds; localhost otherwise)
 ├── wrangler.jsonc          Worker "seoso": assets from dist/, server entry for /api/preview
 ├── public/
-│   ├── _redirects          /home → / (301)
+│   ├── _redirects          /home → /; /awards-and-accolades, /symphony-in-action, /videos → /our-history#… (301)
 │   └── admin/              Sveltia CMS: index.html, config.yml, preview.js
 ├── src/
 │   ├── content/            ALL CONTENT — pages/, events/, news/, venues/, snippets/, settings/*.json
@@ -46,9 +47,9 @@ seoso/
 │   │   ├── site/                  SiteHeader, SiteDrawer (mobile nav), SiteFooter, NavLink, NavBehavior, Logo
 │   │   └── ui/                    Container, ButtonLink, Eyebrow, TextLink, SmartLink, Media, Heading
 │   ├── layouts/            BaseLayout (head/meta), SiteLayout (header, drawer, footer)
-│   ├── lib/                events (the "past" rule), rollover (browser drop-off), dates (Eastern Time),
-│   │                       sections (block schemas), preview (preview validation), feeds (.ics), links,
-│   │                       inline (heading Markdown), markdown, site-data, event-data
+│   ├── lib/                events (the "past" rule), rollover (browser drop-off), lightbox (photo/video overlay),
+│   │                       dates (Eastern Time), sections (block schemas), preview (preview validation),
+│   │                       feeds (.ics), links, inline (heading Markdown), markdown, site-data, event-data
 │   ├── pages/              routes (below) + api/preview.astro + admin/preview.css.ts + events.ics.ts
 │   └── styles/global.css   imports, @plugin blocks, @theme tokens — nothing else
 ├── test/                   lib/, components/, cms-config, preview-sync, smoke, review-fixes
@@ -130,7 +131,8 @@ copy of the markup. Keep it that way: do not add React (or any other) preview co
    `SiteFooter`, and returns HTML.
 3. `CMS.registerPreviewStyle("/admin/preview.css")` loads the site's compiled CSS (`src/pages/admin/preview.css.ts`).
 4. `PageBuilder` with `preview` adds `data-key-path="sections.N"` so clicking a block highlights its fields.
-5. Scripts inside the returned HTML don't run in the pane; the server renders the state as of the request.
+5. Scripts inside the returned HTML don't run in the pane; the server renders the state as of the request. (So
+   the lightbox doesn't open in the preview; gallery and video thumbnails are plain links there.)
 
 **Keep `public/admin/preview.js` in sync.** It is not type-checked or bundled, so it is easy to forget. When you
 change any of the following, update `preview.js` in the same commit:
@@ -210,6 +212,11 @@ Recurring patterns — reuse the components rather than restyling:
   `brandOnBase`, `outlineOnBase`, `outlineOnDark`, `outlineOnDarkSmall`. Brand first, outline second.
 - **Text links** (`ui/TextLink.astro`): `link link-secondary`, semibold, offset underline.
 - **Events list** (`sections/EventList.astro`): programme layout — date | what | where, year rows in blue italic.
+- **Photos and videos** (`sections/Gallery.astro`, `sections/Video.astro`): black-and-white thumbnails (`grayscale`
+  on the link) that open in the PhotoSwipe overlay with next/prev (`src/lib/lightbox.ts`). The list carries
+  `data-lightbox`; photo links point at the full-size image with `data-pswp-width`/`-height`; video links point at
+  the YouTube watch page with `data-youtube-id` and use YouTube's `hqdefault.jpg` as the thumbnail. Videos play
+  through youtube-nocookie and load only while their slide is shown. Without JS every link still works.
 
 Two themes, `seoso` (default) and `seoso-dark` (`prefersdark`), both in `global.css`. Do not add a theme switcher
 or more themes unless asked.
