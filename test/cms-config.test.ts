@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { parse } from "yaml";
 import { SECTION_TYPES, previewSectionSchema } from "../src/lib/sections";
 
-const repoRoot = join(__dirname, "../..");
+const repoRoot = join(__dirname, "..");
 const config = parse(readFileSync(join(__dirname, "../public/admin/config.yml"), "utf8"));
 const collection = (name: string) => config.collections.find((c: { name: string }) => c.name === name);
 const sectionTypes = (name: string) => collection(name).fields.find((f: { name: string }) => f.name === "sections").types;

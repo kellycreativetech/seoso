@@ -27,7 +27,7 @@ describe("a half-filled Text + Media block doesn't break the build", () => {
 });
 
 test("an image picked from the media library (absolute path) is stored relative", () => {
-  const parsed = previewSectionSchema.parse({ type: "hero", heading: "Hi", image: { src: "/site/src/assets/uploads/a.jpg", alt: "" } });
+  const parsed = previewSectionSchema.parse({ type: "hero", heading: "Hi", image: { src: "/src/assets/uploads/a.jpg", alt: "" } });
   expect(parsed.type === "hero" && parsed.image?.src).toBe("../../assets/uploads/a.jpg");
 });
 

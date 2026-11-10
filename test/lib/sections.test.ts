@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { SECTION_TYPES, expandSnippets, previewSectionSchema, type Section } from "../../src/lib/sections";
+import { SECTION_TYPES, expandSnippets, normalizeUploadPath, previewSectionSchema, type Section } from "../../src/lib/sections";
 
 const img = { src: "../../assets/uploads/a.jpg", alt: "A" };
 const link = { label: "Go", page: "about" };
@@ -74,5 +74,14 @@ describe("values as the CMS saves them", () => {
   test("text + media with an empty media choice has no media", () => {
     const parsed = previewSectionSchema.parse({ type: "textMedia", body: "x", mediaSide: "left", media: { kind: "", image: null } });
     expect(parsed.type === "textMedia" && parsed.media).toBeFalsy();
+  });
+});
+
+describe("normalizeUploadPath", () => {
+  test("turns a media-library path (repo root) into the path content files use", () => {
+    expect(normalizeUploadPath("/src/assets/uploads/a.jpg")).toBe("../../assets/uploads/a.jpg");
+  });
+  test("leaves relative paths alone", () => {
+    expect(normalizeUploadPath("../../assets/uploads/a.jpg")).toBe("../../assets/uploads/a.jpg");
   });
 });

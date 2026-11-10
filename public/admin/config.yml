@@ -1,23 +1,24 @@
-# Sveltia CMS for the SEOSO site. Paths are relative to the repository root (the site lives in site/).
-# Field names must match the content schemas in site/src/lib/sections.ts and site/src/content.config.ts
-# (site/test/cms-config.test.ts checks the page blocks).
+# Sveltia CMS for the SEOSO site. Paths are relative to the repository root.
+# Field names must match the content schemas in src/lib/sections.ts and src/content.config.ts
+# (test/cms-config.test.ts checks the page blocks). Collections with a live preview are registered in
+# public/admin/preview.js (test/preview-sync.test.ts keeps them in step).
 
 backend:
   name: github
   repo: kellycreativetech/seoso
   branch: main
-  # Sveltia CMS Authenticator (Cloudflare Worker, repo kellycreativetech/sveltia-cms-auth); see site/README.md.
+  # Sveltia CMS Authenticator (Cloudflare Worker, repo kellycreativetech/sveltia-cms-auth); see README.md.
   base_url: https://sveltia-cms-auth.kasey-db7.workers.dev
 
 publish_mode: simple
 # Leave untouched optional fields out of the files instead of saving them as "".
 output:
   omit_empty_optional_fields: true
-# Uploads live in site/src/assets/uploads so Astro optimizes them. Each collection below stores image paths
+# Uploads live in src/assets/uploads so Astro optimizes them. Each collection below stores image paths
 # relative to its own folder (src/content/<collection>/ → ../../assets/uploads), which is what Astro's image()
 # expects; the top-level values (which must be absolute) are only used by the media library.
-media_folder: /site/src/assets/uploads
-public_folder: /site/src/assets/uploads
+media_folder: /src/assets/uploads
+public_folder: /src/assets/uploads
 
 slug:
   encoding: ascii
@@ -425,7 +426,7 @@ collections:
     label: Pages
     label_singular: Page
     description: Pages built from blocks. The home page, Events and News pages are here too.
-    folder: site/src/content/pages
+    folder: src/content/pages
     media_folder: ../../assets/uploads
     public_folder: ../../assets/uploads
     extension: md
@@ -447,7 +448,7 @@ collections:
     label: Events
     label_singular: Event
     description: Concerts and other events. They move from “upcoming” to “past” the day after they end.
-    folder: site/src/content/events
+    folder: src/content/events
     media_folder: ../../assets/uploads
     public_folder: ../../assets/uploads
     extension: md
@@ -485,7 +486,7 @@ collections:
   - name: news
     label: News
     label_singular: Post
-    folder: site/src/content/news
+    folder: src/content/news
     media_folder: ../../assets/uploads
     public_folder: ../../assets/uploads
     extension: md
@@ -522,7 +523,7 @@ collections:
   - name: venues
     label: Venues
     label_singular: Venue
-    folder: site/src/content/venues
+    folder: src/content/venues
     media_folder: ../../assets/uploads
     public_folder: ../../assets/uploads
     extension: md
@@ -543,7 +544,7 @@ collections:
     label: Snippets
     label_singular: Snippet
     description: Reusable groups of blocks (like a donation appeal) to insert on several pages with the Snippet block.
-    folder: site/src/content/snippets
+    folder: src/content/snippets
     media_folder: ../../assets/uploads
     public_folder: ../../assets/uploads
     extension: md
@@ -565,7 +566,7 @@ collections:
     files:
       - name: site
         label: Site & contact details
-        file: site/src/content/settings/site.json
+        file: src/content/settings/site.json
         fields:
           - { name: title, label: Short name, widget: string, hint: Used in page titles, e.g. “SEOSO”. }
           - { name: organizationName, label: Full name, widget: string, required: false }
@@ -597,7 +598,7 @@ collections:
               - { name: url, label: Address, widget: string }
       - name: navigation
         label: Main navigation
-        file: site/src/content/settings/navigation.json
+        file: src/content/settings/navigation.json
         fields:
           - name: items
             label: Menu items
@@ -618,7 +619,7 @@ collections:
                 fields: *linkFields
       - name: footer
         label: Footer
-        file: site/src/content/settings/footer.json
+        file: src/content/settings/footer.json
         fields:
           - name: links
             label: Footer links

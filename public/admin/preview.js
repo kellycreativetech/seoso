@@ -1,9 +1,9 @@
 // Live preview: the site renders the entry being edited with its real Astro components (POST /api/preview,
-// see site/src/pages/api/preview.astro) and this template shows that HTML in the preview pane.
+// see src/pages/api/preview.astro) and this template shows that HTML in the preview pane.
 // Uses the React bundled with Sveltia (CMS.React), so there's nothing to build or install.
 (() => {
   const { createElement: h, useEffect, useState } = CMS.React;
-  const UPLOADS = ["../../assets/uploads/", "/site/src/assets/uploads/"];
+  const UPLOADS = ["../../assets/uploads/", "/src/assets/uploads/"];
 
   // Images saved in the repo are referenced relative to the content file; unsaved uploads only exist in the
   // browser. getAsset() turns either into a URL the preview can load.
