@@ -1,20 +1,38 @@
 {
-  "name": "seoso",
+  "name": "seoso-site",
   "private": true,
-  "description": "SEOSO website: standalone Sanity Studio (studio/) + Next.js site (web/)",
-  "engines": {
-    "node": ">=22.12"
-  },
+  "type": "module",
   "scripts": {
-    "postinstall": "npm install --prefix studio && npm install --prefix web",
-    "start": "concurrently --names web,studio --prefix-colors blue,magenta --kill-others-on-fail \"cd web && npm run dev\" \"cd studio && npm run dev\"",
-    "dev": "npm run start",
-    "typegen": "cd studio && npm run typegen",
-    "check": "npm run typegen && cd web && npx tsc --noEmit && npm run lint && npm run build",
-    "deploy:studio": "cd studio && npm run deploy",
-    "deploy:web": "npx netlify-cli deploy --prod"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro build && wrangler dev",
+    "check": "astro check",
+    "test": "vitest run",
+    "migrate": "node --experimental-strip-types scripts/migrate-from-sanity.ts"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.4.2",
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource-variable/source-sans-3": "^5.3.1",
+    "@lucide/astro": "^1.61.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "7.4.2",
+    "daisyui": "^5.7.50",
+    "marked": "^18.1.2",
+    "tailwindcss": "^4.3.3",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "concurrently": "^10.0.5"
+    "@astrojs/check": "^0.9.12",
+    "@types/node": "^26.6.5",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.153.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261019.1": true,
+    "workerd@1.20261023.1": true,
+    "fsevents@2.3.3": true
   }
 }

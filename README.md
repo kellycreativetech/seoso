@@ -1,94 +1,51 @@
-# SEOSO website
+# SEOSO site (Astro + Sveltia CMS on Cloudflare)
 
-Website for the Southeastern Ohio Symphony Orchestra.
+The Southeastern Ohio Symphony Orchestra website. Content lives in this repo as Markdown/JSON and is edited in
+Sveltia CMS at `/admin`. The site is prerendered by Astro and served by Cloudflare Workers.
 
-| Folder | What it is | Local URL | Live URL |
-| --- | --- | --- | --- |
-| `web/` | The public site (Next.js + daisyUI) | http://localhost:3000 | https://seoso.netlify.app |
-| `studio/` | The CMS (Sanity Studio) | http://localhost:3333 | https://seoso.sanity.studio |
+## Commands (run in `site/`)
 
-Content lives in Sanity (project `cerintdw`, dataset `production`), so the local site and Studio show the same content as the live ones.
-
-## First-time setup
-
-You need **Node.js 22.12 or newer** (`node --version`).
-
-1. **Install everything** from this folder. This installs the root tools, then `studio/` and `web/`:
-
-   ```bash
-   npm install
-   ```
-
-2. **Create `web/.env.local`** from the template:
-
-   ```bash
-   cp web/.env.example web/.env.local
-   ```
-
-   Then set `SANITY_API_READ_TOKEN` to a **Viewer** token. Without it the site won't start.
-   - Create one at [sanity.io/manage](https://www.sanity.io/manage) → SEOSO → API → Tokens → *Add API token* (Viewer), or
-   - run `npx sanity tokens add "local preview" --role viewer` inside `studio/`.
-
-   This file holds a secret and is ignored by git. Never commit it.
-
-3. **Log in to Sanity** once, so the Studio and CLI know who you are:
-
-   ```bash
-   cd studio && npx sanity login
-   ```
-
-## Run it locally
-
-```bash
-npm run start
-```
-
-This starts both apps in one terminal (output is labelled `[web]` and `[studio]`):
-
-- Site: http://localhost:3000
-- Studio: http://localhost:3333
-
-Press **Ctrl-C** to stop both. If one fails to start, the other stops too; check the output for the error.
-The most common cause is something already using port 3000 or 3333.
-
-To run just one:
-
-```bash
-npm run dev --prefix web      # site only
-npm run dev --prefix studio   # Studio only
-```
-
-### Live preview
-
-In the local Studio, open **Presentation** in the top bar to edit with a live preview of the local site.
-Click any text or section on the page to edit it. Drafts show in the preview before you publish.
-
-## Everyday commands
-
-Run these from this folder:
-
-| Command | What it does |
+| Task | Command |
 | --- | --- |
-| `npm run start` | Run the site and Studio locally |
-| `npm run typegen` | Regenerate TypeScript types after changing the schema or a query |
-| `npm run check` | Typegen, type-check, lint and production-build the site |
-| `npm run deploy:studio` | Publish the Studio to https://seoso.sanity.studio |
-| `npm run deploy:web` | Build and publish the site to https://seoso.netlify.app (needs `npx netlify-cli login` once; config in `netlify.toml`) |
+| Develop | `npm run dev` → http://localhost:4321 (CMS at /admin/, choose “Work with Local Repository”) |
+| Test | `npm test` (vitest) |
+| Type check | `npm run check` |
+| Build | `npm run build` → `dist/` |
+| Run the built Worker locally | `npm run preview` → http://localhost:8787 |
+| Re-import from Sanity (discards CMS edits!) | `npm run migrate -- --force` |
 
-**Publishing content doesn't need a deploy.** Content published in the Studio appears on the live site right away.
-Deploy only after changing code.
+## How it fits together
 
-## Project layout
+- **Content:** `src/content/` — `pages/` (ordered `sections` lists in frontmatter), `events/`, `news/`, `venues/`,
+  `snippets/` (reusable blocks), `settings/` (`site.json`, `navigation.json`, `footer.json`). Schemas:
+  `src/content.config.ts` and `src/lib/sections.ts`. The build fails on invalid content.
+- **Images:** `src/assets/uploads/`, referenced relative to the content file (`../../assets/uploads/…`) and
+  optimized at build.
+- **Page blocks:** one Astro component per block in `src/components/sections/`, chosen by `SectionRenderer.astro`.
+  `PageBuilder.astro` sets black/white backgrounds (home page alternates). To add a block: schema in
+  `lib/sections.ts` → component + case in `SectionRenderer.astro` → type in `public/admin/config.yml` (pages and
+  snippets share it) → `npm test` (`test/cms-config.test.ts` checks they match).
+- **CMS:** `public/admin/config.yml` (Sveltia CMS, pinned version in `index.html`). Editors commit straight to
+  the branch in `backend.branch`.
+- **Live preview:** `public/admin/preview.js` posts the entry being edited to `/api/preview`
+  (`src/pages/api/preview.astro`, the only on-demand route), which renders it with the real components and the
+  site CSS (`/admin/preview.css`). Same-origin POST only.
+- **Events:** an event is past from midnight Eastern on the day after it ends (`src/lib/events.ts`). Each build
+  publishes `/events.json` (with `nextRollover`) and `/events.ics` (calendar feed).
+- **Rollover:** `../workers/rollover/` runs daily just after midnight Eastern and calls the deploy hook only when
+  a concert has fallen off since the last build.
 
-```
-seoso/
-├── studio/          Sanity Studio: content model (schemaTypes/), sidebar (structure.ts),
-│                    live preview routes (presentation/)
-├── web/             Next.js site: pages (src/app/), sections (src/components/),
-│                    Sanity queries and client (src/sanity/)
-├── AGENTS.md        Detailed conventions: design system, daisyUI and Sanity rules, content model
-└── package.json     Root scripts (this README)
-```
+## Hosting and secrets
 
-Read [AGENTS.md](AGENTS.md) before changing code. It covers the design rules, how to add a page section,
-and what to check before you're done. AI coding agents read it automatically.
+| What | Where |
+| --- | --- |
+| Site Worker `seoso` | Cloudflare Workers Builds, root `site`, build `npm run build`, deploy `npx wrangler deploy`, production branch `main`. Build variable `SITE_URL`. |
+| CMS sign-in | Sveltia CMS Authenticator Worker + a GitHub OAuth App owned by `kellycreativetech`. Secrets `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and variable `ALLOWED_DOMAINS` live on that Worker. Its URL is `backend.base_url` in `public/admin/config.yml`. |
+| Rollover Worker `seoso-rollover` | Workers Builds, root `workers/rollover`. Variable `SITE_URL`, secret `DEPLOY_HOOK_URL` (the site's deploy hook). |
+
+No secret belongs in this repository.
+
+## Editors
+
+Anyone with **Write** access to `kellycreativetech/seoso` on GitHub can sign in at `/admin`. Sanity is frozen:
+content edited there after the migration must be copied over by hand.
