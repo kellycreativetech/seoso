@@ -35,7 +35,8 @@ const text = optionalText;
 
 // An image picked from the CMS media library may be saved with its repo path; content files expect the path
 // relative to src/content/<collection>/ (what Astro's image() resolves).
-const UPLOADS_ABSOLUTE = "/src/assets/uploads/";
+// Also hard-coded in public/admin/preview.js (test/preview-sync.test.ts checks they match).
+export const UPLOADS_ABSOLUTE = "/src/assets/uploads/";
 export const normalizeUploadPath = (v: unknown) =>
   typeof v === "string" && v.startsWith(UPLOADS_ABSOLUTE) ? `../../assets/uploads/${v.slice(UPLOADS_ABSOLUTE.length)}` : v;
 /** An optional object that counts as absent when `key` is blank. */

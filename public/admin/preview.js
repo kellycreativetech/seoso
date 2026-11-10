@@ -1,6 +1,9 @@
 // Live preview: the site renders the entry being edited with its real Astro components (POST /api/preview,
 // see src/pages/api/preview.astro) and this template shows that HTML in the preview pane.
 // Uses the React bundled with Sveltia (CMS.React), so there's nothing to build or install.
+// Plain JS, not type-checked: keep the collection list, upload prefixes and request shape in step with
+// src/lib/preview.ts, src/pages/api/preview.astro, src/lib/sections.ts (UPLOADS_ABSOLUTE) and config.yml.
+// test/preview-sync.test.ts checks this; AGENTS.md "Live preview" has the full list.
 (() => {
   const { createElement: h, useEffect, useState } = CMS.React;
   const UPLOADS = ["../../assets/uploads/", "/src/assets/uploads/"];
