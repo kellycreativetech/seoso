@@ -1,0 +1,62 @@
+---
+import type { Section as SectionData } from "../../lib/sections";
+import Container from "../ui/Container.astro";
+import Eyebrow from "../ui/Eyebrow.astro";
+import Heading from "../ui/Heading.astro";
+import Media from "../ui/Media.astro";
+import Markdown from "./Markdown.astro";
+
+// A text page in one block: a black title band (eyebrow, title, intro) over a white body (optional image, Markdown),
+// both in the long-form text column (cols 4–11, 62ch) — the same column as Masthead `width: "text"` and Rich text.
+// The block draws its own black band, so PageBuilder gives it a plain (base) wrapper.
+interface Props {
+  section: Extract<SectionData, { type: "simpleText" }>;
+  index: number;
+  isFirst: boolean;
+}
+const { section, index, isFirst } = Astro.props;
+const { eyebrow, title, intro, image, body, anchorId } = section;
+const Tag = isFirst ? "h1" : "h2";
+const headingId = `heading-${anchorId ?? index}`;
+---
+
+<article id={anchorId ?? undefined} aria-labelledby={headingId} class="scroll-mt-8">
+  <div data-theme="seoso-dark" class="bg-neutral text-neutral-content">
+    <Container>
+      <div class="grid grid-cols-1 pt-12 pb-16 sm:pt-20 sm:pb-20 md:grid-cols-12 lg:pt-24 lg:pb-24">
+        <div class="grid grid-cols-1 gap-6 max-w-[62ch] md:col-span-8 md:col-start-4">
+          {eyebrow && <Eyebrow tone="brand">{eyebrow}</Eyebrow>}
+          <Tag
+            id={headingId}
+            class="font-serif text-h1 font-light tracking-[-0.015em] text-balance md:text-[4.25rem] md:leading-none lg:text-display [&_em]:font-normal [&_em]:text-primary [&_em]:italic"
+          >
+            <Heading text={title} />
+          </Tag>
+          {intro && <p class="font-serif text-lead text-neutral-content/90">{intro}</p>}
+        </div>
+      </div>
+    </Container>
+  </div>
+  <div class="py-16 sm:py-24 lg:py-30">
+    <Container>
+      <div class="grid grid-cols-1 md:grid-cols-12">
+        <div class="grid grid-cols-1 gap-8 max-w-[62ch] md:col-span-8 md:col-start-4">
+          {
+            image && (
+              <Media
+                src={image.src}
+                alt={image.alt}
+                width={1240}
+                height={827}
+                variant="media"
+                loading={isFirst ? "eager" : "lazy"}
+                sizes="(min-width: 48rem) 62ch, 100vw"
+              />
+            )
+          }
+          <Markdown value={body} />
+        </div>
+      </div>
+    </Container>
+  </div>
+</article>

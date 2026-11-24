@@ -3,12 +3,10 @@ title: About SEOSO
 seo:
   description: Founded in 1977, the Southeastern Ohio Symphony Orchestra shares music with friends and neighbors across Southeastern Ohio.
 sections:
-  - type: hero
-    width: text
+  - type: simpleText
     eyebrow: About SEOSO
-    heading: DA *CAPO*
-    lead: "DA CAPO: it’s a phrase in Italian that every musician sees now and then. It means to return to the very start of the piece and play “from the beginning.”"
-  - type: richText
+    title: DA *CAPO*
+    intro: "DA CAPO: it’s a phrase in Italian that every musician sees now and then. It means to return to the very start of the piece and play “from the beginning.”"
     body: |-
       When the Southeastern Ohio Symphony Orchestra was incorporated in April of 1977, its purpose was stated to be “to foster, promote and increase the musical knowledge and appreciation of the public, exclusively by educational activities” in presenting performances primarily from the literature of symphonic music, and could also include “chamber-music, opera, solo recital, vocal chorus or the dance.” The group began as a string ensemble while looking forward to the possibilities of large symphonic programs.
 

@@ -105,7 +105,13 @@ route, update it there too.
   `homePage`, `donateLink`, `mailingAddress`, `email`, `social`; `navigation.json` — `items` (links with
   `children`); `footer.json` — `links`, `note`.
 - **Blocks** (`SECTION_TYPES` in `src/lib/sections.ts`): hero, eventsList, highlightBand, newsList, richText,
-  people, contacts, venues, gallery, video, textMedia, cardGrid, testimonials, ctaBand, faq, stats, logos, snippet.
+  people, contacts, venues, gallery, video, textMedia, cardGrid, testimonials, ctaBand, faq, stats, logos,
+  simpleText, snippet.
+- **Text pages** use the **Simple text column** block (`simpleText`, `sections/SimpleText.astro`): eyebrow,
+  `title`, `intro`, optional `image`, Markdown `body`. It draws its own black title band over a white body, both in
+  the long-form text column (cols 4–11, 62ch); the title is the page's `h1` when the block is first. There is one
+  page type (Pages) — no separate "basic page" collection. `about` uses it; `donate` keeps a Masthead because of
+  its buttons.
 - Headings are one line of inline Markdown: `*italic*` and `~~strike~~` only (`src/lib/inline.ts`).
 - Images: referenced relative to the content file (`../../assets/uploads/…`). The CMS media library may save the
   repo path (`/src/assets/uploads/…`); `normalizeUploadPath` converts it.

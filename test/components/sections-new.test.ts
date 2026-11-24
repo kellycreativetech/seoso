@@ -3,6 +3,7 @@ import CardGrid from "../../src/components/sections/CardGrid.astro";
 import CtaBand from "../../src/components/sections/CtaBand.astro";
 import Faq from "../../src/components/sections/Faq.astro";
 import Logos from "../../src/components/sections/Logos.astro";
+import SimpleText from "../../src/components/sections/SimpleText.astro";
 import Stats from "../../src/components/sections/Stats.astro";
 import Testimonials from "../../src/components/sections/Testimonials.astro";
 import TextMedia from "../../src/components/sections/TextMedia.astro";
@@ -88,4 +89,34 @@ test("CTA band shows its buttons", async () => {
   const html = await render(CtaBand, { section: { type: "ctaBand", heading: "Support *your* symphony", buttons: [{ label: "Donate", page: "donate" }] }, index: 0 });
   expect(html).toContain("<em>your</em>");
   expect(html).toContain('href="/donate"');
+});
+
+describe("Simple text column", () => {
+  const full = { type: "simpleText", eyebrow: "About", title: "Da *capo*", intro: "Lead line", body: "Para" } as const;
+  test("first on the page: black title band with an h1, body in the text column, no top rule", async () => {
+    const html = await render(SimpleText, { section: full, index: 0, isFirst: true });
+    expect(html).toContain("<h1");
+    expect(html).toContain("<em>capo</em>");
+    expect(html).toContain('data-theme="seoso-dark"');
+    expect(html).toContain("max-w-[62ch] md:col-span-8 md:col-start-4");
+    expect(html).toContain("<p>Para</p>");
+    expect(html).toContain("Lead line");
+    expect(html).not.toContain("border-t-2");
+  });
+  test("further down the page the title is an h2", async () => {
+    const html = await render(SimpleText, { section: full, index: 2, isFirst: false });
+    expect(html).toContain("<h2");
+    expect(html).not.toContain("<h1");
+  });
+  test("only a title and body: no image, intro or eyebrow wrappers", async () => {
+    const html = await render(SimpleText, { section: { type: "simpleText", title: "T", body: "B" }, index: 0, isFirst: true });
+    expect(html).not.toContain("<img");
+    expect(html).not.toContain("<picture");
+    expect(html).not.toMatch(/<p[^>]*>\s*<\/p>/);
+    expect(html).not.toContain("tracking-[0.14em]");
+  });
+  test("an image is rendered at the text-column width", async () => {
+    const html = await render(SimpleText, { section: { ...full, image }, index: 0, isFirst: true });
+    expect(html).toContain('alt="The hall"');
+  });
 });

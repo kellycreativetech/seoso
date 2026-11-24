@@ -21,6 +21,7 @@ const minimal: Record<(typeof SECTION_TYPES)[number], object> = {
   faq: { items: [{ question: "Q", answer: "A" }] },
   stats: { stats: [{ value: "50", label: "years" }, { value: "5", label: "concerts" }] },
   logos: { logos: [{ image: img, name: "Sponsor" }] },
+  simpleText: { title: "About", body: "Text" },
   snippet: { snippet: "appeal" },
 };
 
@@ -83,5 +84,16 @@ describe("normalizeUploadPath", () => {
   });
   test("leaves relative paths alone", () => {
     expect(normalizeUploadPath("../../assets/uploads/a.jpg")).toBe("../../assets/uploads/a.jpg");
+  });
+});
+
+describe("simple text column schema", () => {
+  test("title and body are required", () => {
+    expect(() => previewSectionSchema.parse({ type: "simpleText", body: "B" })).toThrow();
+    expect(() => previewSectionSchema.parse({ type: "simpleText", title: "T" })).toThrow();
+  });
+  test("an image left blank in the CMS counts as no image", () => {
+    const parsed = previewSectionSchema.parse({ type: "simpleText", title: "T", body: "B", image: { src: "", alt: "" } });
+    expect(parsed.type === "simpleText" && parsed.image).toBeNull();
   });
 });

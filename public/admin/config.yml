@@ -413,6 +413,20 @@ x-fields:
               - { name: image, label: Logo, widget: object, fields: *imageFields }
               - { name: href, label: Website, widget: string, required: false }
           - *anchorId
+      - name: simpleText
+        label: Simple text column
+        description: A title, intro, optional image and text in one readable column. Use it for text pages.
+        summary: 'Simple text · {{fields.title}}'
+        fields:
+          - *eyebrow
+          - name: title
+            label: Title
+            widget: string
+            hint: The page title when this block comes first. Wrap words in *asterisks* to set them in italics.
+          - { name: intro, label: Intro, widget: text, required: false, hint: A sentence or two in larger type under the title. }
+          - { name: image, label: Image, widget: object, required: false, summary: "{{fields.alt}}", fields: *imageFields, hint: Optional; shown above the text at the column's width. }
+          - { name: body, label: Text, widget: richtext, buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list, quote], editor_components: [] }
+          - *anchorId
       - name: snippet
         label: Snippet
         description: Insert a reusable snippet (edited under Snippets) here.

@@ -12,6 +12,7 @@ import Logos from "./Logos.astro";
 import NewsList from "./NewsList.astro";
 import People from "./People.astro";
 import RichText from "./RichText.astro";
+import SimpleText from "./SimpleText.astro";
 import Stats from "./Stats.astro";
 import Testimonials from "./Testimonials.astro";
 import TextMedia from "./TextMedia.astro";
@@ -44,3 +45,4 @@ const { section, index, isFirst } = Astro.props;
 {section.type === "faq" && <Faq section={section} index={index} />}
 {section.type === "stats" && <Stats section={section} index={index} />}
 {section.type === "logos" && <Logos section={section} index={index} />}
+{section.type === "simpleText" && <SimpleText section={section} index={index} isFirst={isFirst} />}

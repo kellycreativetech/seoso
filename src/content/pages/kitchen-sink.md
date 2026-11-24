@@ -82,6 +82,17 @@ sections:
         role: Muskingum County
   - type: snippet
     snippet: donate-appeal
+  - type: simpleText
+    eyebrow: Simple text column
+    title: A *text page* in one block
+    intro: The black band holds an eyebrow, the title and a short intro; everything sits in the same column as the text below.
+    image:
+      src: ../../assets/uploads/brown-chapel-2c0ef01e.jpg
+      alt: Brown Chapel, where SEOSO often performs
+    body: |-
+      Use **Simple text column** for pages that are mostly words: a history, a policy, a short story. When it is the first block on a page its title is the page heading.
+
+      The image is optional and shows at the width of this column. The text supports subheadings, lists, quotes and [links](/events).
   - type: faq
     eyebrow: Questions
     heading: Good to *know*

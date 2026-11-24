@@ -20,6 +20,7 @@ export const SECTION_TYPES = [
   "faq",
   "stats",
   "logos",
+  "simpleText",
   "snippet",
 ] as const;
 
@@ -143,6 +144,8 @@ export function makeSectionSchema<Src extends z.ZodType>(src: Src) {
       ...header,
       quotes: z.array(z.object({ quote: z.string(), name: z.string(), role: text, photo: optionalImage })).min(1).max(3),
     }),
+    // A text page in one block: black title band (eyebrow, title, intro) over an image and Markdown body.
+    z.object({ type: z.literal("simpleText"), anchorId: text, eyebrow: text, title: z.string(), intro: text, image: optionalImage, body: z.string() }),
     z.object({ type: z.literal("ctaBand"), anchorId: text, heading: z.string(), text, buttons }),
     z.object({
       type: z.literal("faq"),
