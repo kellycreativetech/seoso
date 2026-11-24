@@ -20,6 +20,17 @@ output:
 media_folder: /src/assets/uploads
 public_folder: /src/assets/uploads
 
+# Uploads are converted in the browser before they are committed: photos (iPhone HEIC included) become WebP,
+# at most 2560px; SVGs are optimized; file names are slugified. Image fields set `choose_url: false` because a
+# typed-in remote URL would fail the build (Astro's image() schema needs a file in src/assets/uploads).
+media_libraries:
+  default:
+    config:
+      slugify_filename: true
+      transformations:
+        raster_image: { format: webp, quality: 90, width: 2560, height: 2560 }
+        svg: { optimize: true }
+
 slug:
   encoding: ascii
   clean_accents: true
@@ -81,7 +92,7 @@ x-fields:
     hint: Up to two. The first is the blue button.
     fields: *linkFields
   imageFields: &imageFields
-    - { name: src, label: Image, widget: image }
+    - { name: src, label: Image, widget: image, choose_url: false }
     - name: alt
       label: Alternative text
       widget: string
@@ -103,7 +114,7 @@ x-fields:
     fields:
       - { name: title, label: Title in search results, widget: string, required: false, hint: Defaults to the page title. }
       - { name: description, label: Description, widget: text, required: false }
-      - { name: image, label: Sharing image, widget: image, required: false, hint: Shown when the page is shared. 1200×630 works best. }
+      - { name: image, label: Sharing image, widget: image, choose_url: false, required: false, hint: Shown when the page is shared. 1200×630 works best. }
       - { name: noIndex, label: Hide from search engines, widget: boolean, default: false, required: false }
 
   # Page blocks, shared by Pages and Snippets. Order matches SECTION_TYPES in src/lib/sections.ts.
@@ -252,7 +263,7 @@ x-fields:
             collapsed: auto
             summary: '{{fields.alt}}'
             fields:
-              - { name: src, label: Photo, widget: image }
+              - { name: src, label: Photo, widget: image, choose_url: false }
               - { name: alt, label: Alternative text, widget: string, required: false }
               - { name: caption, label: Caption, widget: string, required: false }
           - *anchorId
@@ -595,7 +606,7 @@ collections:
           - { name: tagline, label: Tagline, widget: string, required: false }
           - { name: description, label: Description for search engines, widget: text, required: false }
           - { name: logo, label: Logo, widget: object, required: false, fields: *imageFields, hint: Shown on black, so use a light logo. }
-          - { name: defaultSeoImage, label: Default sharing image, widget: image, required: false }
+          - { name: defaultSeoImage, label: Default sharing image, widget: image, choose_url: false, required: false }
           - name: homePage
             label: Home page
             widget: relation

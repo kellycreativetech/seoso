@@ -288,6 +288,13 @@ daisyUI gotchas:
 - `public/admin/config.yml` paths are relative to the repo root (`src/content/pages`). Each collection stores
   image paths relative to its folder (`media_folder: ../../assets/uploads`); the top-level `media_folder`
   (`/src/assets/uploads`) is only for the media library.
+- Every `widget: image` field has `choose_url: false` (a typed-in remote URL fails the build). Uploads are
+  converted in the browser before they are committed (`media_libraries.default.config`): photos, iPhone HEIC
+  included, become WebP q90 at most 2560px; SVGs are optimized; file names are slugified. `test/cms-config.test.ts`
+  checks both.
+- To drive the CMS headlessly (no sign-in), use the `building-astro-sveltia-sites` skill's `cms-local-test.mjs`
+  from a scratch folder with Playwright installed next to it, with its `walk('content')` changed to
+  `walk('src/content')`, against `npx astro dev` (open `/admin/index.html`).
 - Field names must match the schemas in `src/lib/sections.ts` and `src/content.config.ts`. `test/cms-config.test.ts`
   checks block types and fields, that every folder/file exists, the GitHub backend on `main`, and that event times
   are entered in Eastern time and stored as UTC.

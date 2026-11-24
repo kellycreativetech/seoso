@@ -37,3 +37,31 @@ describe("Sveltia CMS config", () => {
     expect(start).toMatchObject({ widget: "datetime", input_timezone: "America/New_York", output_utc: true });
   });
 });
+
+describe("CMS image uploads", () => {
+  type Field = { name?: string; widget?: string; choose_url?: boolean; fields?: Field[]; types?: Field[]; field?: Field };
+  const imageFields: Field[] = [];
+  const walk = (fields: Field[] = []) => {
+    for (const f of fields) {
+      if (f.widget === "image") imageFields.push(f);
+      walk(f.fields);
+      walk(f.types);
+      if (f.field) walk([f.field]);
+    }
+  };
+  for (const c of config.collections) {
+    walk(c.fields);
+    for (const file of c.files ?? []) walk(file.fields);
+  }
+
+  test("every image field refuses a typed-in URL (remote images would fail the build)", () => {
+    expect(imageFields.length).toBeGreaterThan(3);
+    for (const f of imageFields) expect(f, f.name).toMatchObject({ choose_url: false });
+  });
+  test("uploads are converted in the browser: WebP at most 2560px, SVGs optimized, names slugified", () => {
+    expect(config.media_libraries?.default?.config).toEqual({
+      slugify_filename: true,
+      transformations: { raster_image: { format: "webp", quality: 90, width: 2560, height: 2560 }, svg: { optimize: true } },
+    });
+  });
+});
