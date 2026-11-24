@@ -4,5 +4,8 @@
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-10-20",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": { "directory": "./dist", "binding": "ASSETS" }
+  "assets": { "directory": "./dist", "binding": "ASSETS" },
+  // Every branch other than production gets a public Preview URL (pages are noindexed; see site-url.mjs).
+  "workers_dev": true,
+  "preview_urls": true
 }

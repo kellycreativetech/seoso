@@ -38,7 +38,8 @@ code are in `AGENTS.md`.
 
 | What | Where |
 | --- | --- |
-| Site Worker `seoso` | Cloudflare Workers Builds from `kellycreativetech/seoso`, root directory = repo root, build `npm run build`, deploy `npx wrangler deploy`, production branch `main`. Build variable `SITE_URL`. |
+| Site Worker `seoso` | Cloudflare Workers Builds from `kellycreativetech/seoso`, root directory = repo root, build `npm run build` (type-checks first), deploy `npx wrangler deploy`, production branch `main`. Build variable `SITE_URL` (the production URL) must apply to **all** branches. |
+| Branch previews | Every other branch gets a public Preview URL (`preview_urls` in `wrangler.jsonc`); its pages are `noindex`. Turn on non-production branch builds in Workers Builds → Settings → Build. |
 | CMS sign-in | Sveltia CMS Authenticator Worker + a GitHub OAuth App owned by `kellycreativetech`. Secrets `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and variable `ALLOWED_DOMAINS` live on that Worker. Its URL is `backend.base_url` in `public/admin/config.yml`. |
 
 No secret belongs in this repository.

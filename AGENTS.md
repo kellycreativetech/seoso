@@ -13,7 +13,7 @@ Read this whole file before changing anything, and **keep it accurate**: when a 
 | --- | --- | --- |
 | Framework | Astro 7.4.2 (pinned exactly), every page prerendered | `astro.config.mjs` |
 | On-demand route | `/api/preview` only (`prerender = false`) — the CMS live preview | `src/pages/api/preview.astro` |
-| Hosting | Cloudflare Worker `seoso` (static assets + the preview route), deployed by Workers Builds from `main` | `wrangler.jsonc`, `@astrojs/cloudflare` |
+| Hosting | Cloudflare Worker `seoso` (static assets + the preview route), deployed by Workers Builds from `main`; every other branch gets a public, noindexed Preview URL | `wrangler.jsonc`, `@astrojs/cloudflare` |
 | CMS | Sveltia CMS 0.253.1 (pinned, loaded from unpkg), GitHub backend, commits straight to `main` | `public/admin/` |
 | CMS sign-in | Sveltia CMS Authenticator Worker + GitHub OAuth App (not in this repo) | `backend.base_url` in `config.yml` |
 | Styling | Tailwind 4 (Vite plugin) + daisyUI 5 plugin; fonts self-hosted via Fontsource | `src/styles/global.css` |
@@ -64,10 +64,14 @@ seoso/
 | Develop | `npm run dev` → http://localhost:4321 (CMS at `/admin/`, "Work with Local Repository") |
 | Test | `npm test` |
 | Type check | `npm run check` |
-| Build | `npm run build` → `dist/` |
+| Build | `npm run build` → `dist/` (runs `astro check` first, so type errors fail the build) |
 | Run the built Worker | `npm run preview` → http://localhost:8787 |
 
-Node version: `.node-version` (24).
+Node version: `.node-version` (24). Cloudflare commands use `npx wrangler` (this repo has `wrangler.jsonc`).
+
+**Restart `npm run dev` after changing a schema** (`src/lib/sections.ts`, `src/content.config.ts`). A running dev
+server keeps entries it parsed under the old schema and silently drops new fields (e.g. a new block option has no
+effect on an existing page) until it restarts. Cloudflare builds are unaffected (fresh checkout, no cache).
 
 ## Definition of done
 
@@ -222,6 +226,24 @@ The homepage is the reference for every page:
 | `base-100/200/300` | `#fff` / `#f4f6f7` / `#dfe3e6` | `#0b0c0d` / `#141618` / `#262a2d` | Surfaces, rules |
 | `base-content` | `#0a0a0a` | `#f4f6f7` | Text |
 | Radius / `--border` / `--depth` / `--noise` | `0` / `1.5px` / `0` / `0` | same | Square, flat |
+
+Measured contrast (WCAG 2, text on background; AA needs 4.5:1, large text 3:1):
+
+| Pair | `seoso` | `seoso-dark` |
+| --- | --- | --- |
+| base-content on base-100 | 19.8:1 | 18.1:1 |
+| base-content/70 on base-100 | 7.6:1 | 9.0:1 |
+| base-content on base-200 | 18.3:1 | 16.7:1 |
+| secondary on base-100 (links, eyebrows) | 5.8:1 | 9.1:1 |
+| secondary on base-200 | 5.3:1 | 8.4:1 |
+| primary on neutral (italics, eyebrows on black) | 7.8:1 | 7.8:1 |
+| neutral-content on neutral | 21.0:1 | 21.0:1 |
+| neutral-content/90 on neutral (leads) | 16.7:1 | 16.7:1 |
+| primary-content on primary (brand button) | 7.8:1 | 7.8:1 |
+| warning-content on warning (CMS preview notice) | **4.2:1** (below AA) | 11.1:1 |
+
+Re-measure any new pair before using it. The light warning pair is only used for the CMS preview's
+"couldn't be previewed" notice; darken `--color-warning` in the `seoso` theme if it is ever used on the site.
 
 Type scale (major third on 18px), Tailwind `@theme` tokens in `src/styles/global.css`: `text-small` 0.889rem ·
 `text-body` 1.125rem · `text-lead` 1.406rem · `text-title` 1.758rem · `text-h3` 2.197rem · `text-h2` 2.747rem ·
