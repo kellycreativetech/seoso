@@ -2,7 +2,7 @@
 import cloudflare from "@astrojs/cloudflare";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
-import { siteUrl } from "./site-url.mjs";
+import { isPreviewBuild, siteUrl } from "./site-url.mjs";
 
 // Every page is prerendered; only /api/preview renders on demand (it opts out with `prerender = false`).
 // Vitest renders components with the Container API and doesn't need (and conflicts with) the Cloudflare adapter.
@@ -15,5 +15,9 @@ export default defineConfig({
   // No server sessions: without this the Cloudflare adapter adds a SESSION KV binding the deploy would need.
   session: false,
   adapter: process.env.VITEST ? undefined : cloudflare({ imageService: "compile" }),
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    // BaseLayout adds noindex to every page of a branch-preview build.
+    define: { "import.meta.env.SEOSO_NOINDEX_ALL": JSON.stringify(isPreviewBuild(process.env)) },
+  },
 });

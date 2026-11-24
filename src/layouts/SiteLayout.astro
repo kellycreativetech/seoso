@@ -22,9 +22,19 @@ const ogImage = shareImage
   : undefined;
 const siteName = data.site.organizationName ?? data.site.title;
 const fullTitle = title ? `${title} | ${data.site.title}` : siteName;
+// Canonical: this page on the production site, without ".html" or a trailing slash (URLs are /about, home is /).
+const path = Astro.url.pathname.replace(/\.html$/, "").replace(/\/index$/, "/").replace(/(.)\/$/, "$1");
+const canonical = new URL(path, Astro.site).href;
 ---
 
-<BaseLayout title={fullTitle} description={description ?? data.site.description ?? undefined} image={ogImage} noIndex={noIndex}>
+<BaseLayout
+  title={fullTitle}
+  canonical={canonical}
+  siteName={siteName}
+  description={description ?? data.site.description ?? undefined}
+  image={ogImage}
+  noIndex={noIndex}
+>
   <SiteDrawer data={data}>
     <a href="#main" class="btn btn-sm absolute top-2 left-2 z-50 -translate-y-20 focus:translate-y-0">Skip to content</a>
     <SiteHeader data={data} />

@@ -1,14 +1,21 @@
 ---
 import "../styles/global.css";
 
+// The document shell: title, description, canonical URL, sharing tags, icons. SiteLayout supplies the values.
 interface Props {
   title: string;
+  /** Absolute URL of this page on the production site. */
+  canonical: string;
+  siteName: string;
   description?: string;
+  /** Absolute URL of a 1200×630 sharing image. */
   image?: string;
   noIndex?: boolean;
 }
 
-const { title, description, image, noIndex = false } = Astro.props;
+const { title, canonical, siteName, description, image, noIndex = false } = Astro.props;
+// Branch-preview builds (see site-url.mjs) keep every page out of search.
+const robotsNoIndex = noIndex || import.meta.env.SEOSO_NOINDEX_ALL === true;
 ---
 
 <!doctype html>
@@ -18,8 +25,28 @@ const { title, description, image, noIndex = false } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    {image && <meta property="og:image" content={image} />}
-    {noIndex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    {robotsNoIndex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:type" content="website" />
+    {
+      image && (
+        <>
+          <meta property="og:image" content={image} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={title} />
+        </>
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/icons/site.webmanifest" />
   </head>
   <body class="font-sans text-body antialiased">
     <slot />

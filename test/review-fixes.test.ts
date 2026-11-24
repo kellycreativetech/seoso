@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { renderInline } from "../src/lib/inline";
 import { previewSectionSchema } from "../src/lib/sections";
-import { siteUrl } from "../site-url.mjs";
+import { isPreviewBuild, siteUrl } from "../site-url.mjs";
 
 describe("blank text the CMS saves is treated as empty", () => {
   test('anchorId "" and heading "" become null', () => {
@@ -44,4 +44,10 @@ describe("SITE_URL", () => {
   test("local development falls back to localhost", () => {
     expect(siteUrl({})).toBe("http://localhost:4321");
   });
+});
+
+describe("preview builds (Cloudflare branch previews) are kept out of search", () => {
+  test("local builds are not previews", () => expect(isPreviewBuild({})).toBe(false));
+  test("the production branch is not a preview", () => expect(isPreviewBuild({ WORKERS_CI_BRANCH: "main" })).toBe(false));
+  test("any other branch is a preview", () => expect(isPreviewBuild({ WORKERS_CI_BRANCH: "feature-x" })).toBe(true));
 });

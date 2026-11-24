@@ -30,9 +30,10 @@ No React, Vue or Svelte in the site. The only React is the copy Sveltia bundles 
 ```
 seoso/
 ├── astro.config.mjs        static output, file-format URLs (/about), Cloudflare adapter (skipped under Vitest)
-├── site-url.mjs            SITE_URL (required on Cloudflare builds; localhost otherwise)
+├── site-url.mjs            SITE_URL (required on Cloudflare builds; localhost otherwise); isPreviewBuild()
 ├── wrangler.jsonc          Worker "seoso": assets from dist/, server entry for /api/preview
 ├── public/
+│   ├── favicon.svg/.ico    owner's clef mark; icons/ holds the PNG set + site.webmanifest
 │   ├── _redirects          /home → /; /awards-and-accolades, /symphony-in-action, /videos → /our-history#… (301)
 │   └── admin/              Sveltia CMS: index.html, config.yml, preview.js
 ├── src/
@@ -91,6 +92,19 @@ Node version: `.node-version` (24).
 
 Links resolve through `src/lib/links.ts` (`page: "home"` → `/`, `page: x` → `/x`, else `href`). If you add a
 route, update it there too.
+
+## Head, sharing and search
+
+- `layouts/BaseLayout.astro` writes the title, description, `<link rel="canonical">` (production URL from
+  `SITE_URL`, no `.html` or trailing slash), `og:title/description/url/site_name/type`, `og:image` (1200×630, from
+  the page's `seo.image` or `site.defaultSeoImage`) with width, height and alt (= the page title),
+  `twitter:card summary_large_image`, and the favicon/manifest links.
+- `noindex` is opt-in per page (`seo.noIndex`; today `kitchen-sink` and `404`). **Branch-preview builds**
+  (`WORKERS_CI_BRANCH` set and not `main`, see `isPreviewBuild` in `site-url.mjs`) noindex every page via the
+  `import.meta.env.SEOSO_NOINDEX_ALL` define in `astro.config.mjs`.
+- Icons come from the owner's `public/favicon.svg` (the treble clef, cropped by design). Regenerate the PNGs with
+  `sips -s format png -z <n> <n> public/favicon.svg` (headless Chrome renders them wrongly); `favicon.ico` wraps
+  the 32px PNG.
 
 ## Content model
 
