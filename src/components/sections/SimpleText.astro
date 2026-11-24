@@ -8,7 +8,8 @@ import Markdown from "./Markdown.astro";
 
 // A text page in one block: a black title band (eyebrow, title, intro) over a white body (optional image, Markdown),
 // both in the long-form text column (cols 4–11, 62ch) — the same column as Masthead `width: "text"` and Rich text.
-// The block draws its own black band, so PageBuilder gives it a plain (base) wrapper.
+// The block draws its own black band, so PageBuilder gives it a plain (base) wrapper. The image keeps its own shape
+// (never cropped), so the site matches the CMS preview.
 interface Props {
   section: Extract<SectionData, { type: "simpleText" }>;
   index: number;
@@ -47,7 +48,7 @@ const headingId = `heading-${anchorId ?? index}`;
                 src={image.src}
                 alt={image.alt}
                 width={1240}
-                height={827}
+                height={typeof image.src === "string" ? 827 : Math.round((1240 * image.src.height) / image.src.width)}
                 variant="media"
                 loading={isFirst ? "eager" : "lazy"}
                 sizes="(min-width: 48rem) 62ch, 100vw"

@@ -115,6 +115,12 @@ describe("Simple text column", () => {
     expect(html).not.toMatch(/<p[^>]*>\s*<\/p>/);
     expect(html).not.toContain("tracking-[0.14em]");
   });
+  test("a large portrait photo keeps its shape on the site, as it does in the CMS preview", async () => {
+    const portrait = { src: "/src/assets/uploads/p.jpg", width: 2000, height: 3000, format: "jpg" };
+    const html = await render(SimpleText, { section: { ...full, image: { src: portrait, alt: "Portrait" } }, index: 0, isFirst: true });
+    const [, w, h] = html.match(/<img[^>]* width="(\d+)" height="(\d+)"/) ?? [];
+    expect(Number(w) / Number(h)).toBeCloseTo(2 / 3, 2);
+  });
   test("an image is rendered at the text-column width", async () => {
     const html = await render(SimpleText, { section: { ...full, image }, index: 0, isFirst: true });
     expect(html).toContain('alt="The hall"');

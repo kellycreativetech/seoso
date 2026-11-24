@@ -47,6 +47,20 @@ describe("Media", () => {
     const html = await render(Media, { src: photo, alt: "", width: 600, height: 450, variant: "gallery" });
     expect(html).toMatch(/<picture class="block">/);
   });
+  test("SVG uploads pass through untouched (converting them would fail the build)", async () => {
+    const svg = { src: "/src/assets/uploads/sponsor.svg", width: 300, height: 100, format: "svg" };
+    const html = await render(Media, { src: svg, alt: "Sponsor", width: 320, height: 112, variant: "sponsor" });
+    expect(html).not.toContain("<picture");
+    expect(html).toMatch(/<img[^>]*src="[^"]*sponsor\.svg"/);
+    expect(html).toContain('alt="Sponsor"');
+  });
+  test("WebP sources (every CMS upload) fall back to WebP, not heavy PNG", async () => {
+    const webp = { src: "/src/assets/uploads/c.webp", width: 2000, height: 1500, format: "webp" };
+    const html = await render(Media, { src: webp, alt: "", width: 600, height: 450, variant: "gallery" });
+    const img = html.match(/<img[^>]*>/)?.[0] ?? "";
+    expect(img).toMatch(/f=webp|\.webp/);
+    expect(img).not.toMatch(/f=png|\.png/);
+  });
   test("plain URLs (CMS preview uploads, YouTube thumbnails) stay a simple <img>", async () => {
     const html = await render(Media, { src: "blob:https://x/1", alt: "New", width: 600, height: 450, variant: "gallery" });
     expect(html).toContain('<img src="blob:https://x/1"');

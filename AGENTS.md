@@ -135,7 +135,10 @@ route, update it there too.
   (AVIF + WebP sources, widths per variant in `widthsFor`, never above the source width, default `sizes` per
   variant in `defaultSizes`; callers pass `sizes` when a variant sits in another layout). `<picture>` is `block`
   — never `contents`, which turns its `<source>` children into grid/flex items and adds gaps. A source smaller
-  than the requested size keeps its own shape (as `<Image>` did). Plain URLs (CMS preview `blob:` uploads,
+  than the requested size keeps its own shape (as `<Image>` did). The fallback `<img>` follows the source (PNG →
+  PNG, WebP → WebP, else JPG). **SVG uploads bypass `<Picture>`** and are served as-is (Astro refuses to
+  rasterize SVG, which would fail the build). The Simple text column's image is never cropped, so the site
+  matches the CMS preview. Plain URLs (CMS preview `blob:` uploads,
   YouTube thumbnails) stay `<img>`. Gallery full-size links and share images use `getImage`.
 - Images: referenced relative to the content file (`../../assets/uploads/…`). The CMS media library may save the
   repo path (`/src/assets/uploads/…`); `normalizeUploadPath` converts it.

@@ -60,6 +60,9 @@ const { src, alt, width, height, variant, loading = "lazy", sizes } = Astro.prop
 // Like astro:assets <Image>: a source smaller than the requested width keeps its own shape (no crop to the
 // requested aspect); a larger one is cropped to width × height. Variants with a CSS aspect crop visually anyway.
 const fitHeight = (image: ImageMetadata) => (image.width < width ? Math.round((width * image.height) / image.width) : height);
+// Fallback <img> format follows the source: PNG keeps transparency, WebP (every CMS upload) stays WebP, the rest JPG.
+// (Astro would otherwise fall back to PNG for WebP sources — large files for photos.)
+const fallbackFor = (image: ImageMetadata) => (image.format === "png" ? "png" : image.format === "webp" ? "webp" : "jpg");
 // No upscaling: keep widths the source can supply; a small source gets just its own width.
 const pickWidths = (image: ImageMetadata, v: Variant) => {
   const fit = widthsFor[v].filter((w) => w <= image.width);
@@ -70,6 +73,9 @@ const pickWidths = (image: ImageMetadata, v: Variant) => {
 {
   typeof src === "string" ? (
     <img src={src} alt={alt} width={width} height={height} class={variants[variant]} loading={loading} decoding="async" />
+  ) : src.format === "svg" ? (
+    // SVGs pass through untouched: converting one to AVIF/WebP fails the build (Astro refuses to rasterize SVG).
+    <img src={src.src} alt={alt} width={width} height={height} class={variants[variant]} loading={loading} decoding="async" />
   ) : (
     <Picture
       src={src}
@@ -77,6 +83,7 @@ const pickWidths = (image: ImageMetadata, v: Variant) => {
       width={width}
       height={fitHeight(src)}
       formats={["avif", "webp"]}
+      fallbackFormat={fallbackFor(src)}
       widths={pickWidths(src, variant)}
       sizes={sizes ?? defaultSizes[variant]}
       class={variants[variant]}
