@@ -1,8 +1,9 @@
 ---
 import type { ImageMetadata } from "astro";
-import { Image } from "astro:assets";
+import { Picture } from "astro:assets";
 
-// Images are optimized at build (ImageMetadata); the CMS preview passes plain URLs, including unsaved blob: uploads.
+// Images are optimized at build (ImageMetadata) into a <picture> with AVIF and WebP at several widths; the browser
+// picks one using `sizes`. The CMS preview passes plain URLs (including unsaved blob: uploads), which stay <img>.
 type Variant = "logo" | "logoSmall" | "hero" | "figure" | "gallery" | "video" | "card" | "media" | "portrait" | "sponsor";
 
 const variants: Record<Variant, string> = {
@@ -19,6 +20,33 @@ const variants: Record<Variant, string> = {
   sponsor: "h-14 w-auto max-w-40 object-contain",
 };
 
+// Candidate widths per variant (never above the source's own width) and the default `sizes` for its usual layout.
+// Callers pass `sizes` when a variant sits in a different layout (e.g. `card` in Venues vs CardGrid).
+const widthsFor: Record<Variant, number[]> = {
+  logo: [160, 320],
+  logoSmall: [160, 320],
+  hero: [640, 1024, 1440, 1920],
+  figure: [400, 800],
+  gallery: [400, 600, 900],
+  video: [480],
+  card: [400, 720, 1080],
+  media: [480, 800, 1240],
+  portrait: [112, 224],
+  sponsor: [160, 320],
+};
+const defaultSizes: Record<Variant, string> = {
+  logo: "160px",
+  logoSmall: "160px",
+  hero: "100vw",
+  figure: "(min-width: 74rem) 28rem, (min-width: 48rem) 40vw, 100vw",
+  gallery: "(min-width: 768px) 33vw, 50vw",
+  video: "(min-width: 768px) 50vw, 100vw",
+  card: "(min-width: 768px) 33vw, 100vw",
+  media: "(min-width: 768px) 40vw, 100vw",
+  portrait: "56px",
+  sponsor: "160px",
+};
+
 interface Props {
   src: ImageMetadata | string;
   alt: string;
@@ -29,12 +57,32 @@ interface Props {
   sizes?: string;
 }
 const { src, alt, width, height, variant, loading = "lazy", sizes } = Astro.props;
+// Like astro:assets <Image>: a source smaller than the requested width keeps its own shape (no crop to the
+// requested aspect); a larger one is cropped to width × height. Variants with a CSS aspect crop visually anyway.
+const fitHeight = (image: ImageMetadata) => (image.width < width ? Math.round((width * image.height) / image.width) : height);
+// No upscaling: keep widths the source can supply; a small source gets just its own width.
+const pickWidths = (image: ImageMetadata, v: Variant) => {
+  const fit = widthsFor[v].filter((w) => w <= image.width);
+  return fit.length ? fit : [image.width];
+};
 ---
 
 {
   typeof src === "string" ? (
     <img src={src} alt={alt} width={width} height={height} class={variants[variant]} loading={loading} decoding="async" />
   ) : (
-    <Image src={src} alt={alt} width={width} height={height} class={variants[variant]} loading={loading} sizes={sizes} fit="cover" />
+    <Picture
+      src={src}
+      alt={alt}
+      width={width}
+      height={fitHeight(src)}
+      formats={["avif", "webp"]}
+      widths={pickWidths(src, variant)}
+      sizes={sizes ?? defaultSizes[variant]}
+      class={variants[variant]}
+      pictureAttributes={{ class: "block" }}
+      loading={loading}
+      fit="cover"
+    />
   )
 }

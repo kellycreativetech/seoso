@@ -127,6 +127,12 @@ route, update it there too.
   page type (Pages) — no separate "basic page" collection. `about` uses it; `donate` keeps a Masthead because of
   its buttons.
 - Headings are one line of inline Markdown: `*italic*` and `~~strike~~` only (`src/lib/inline.ts`).
+- **Image output** (`ui/Media.astro`, used for every content image): optimized images render as `<picture>`
+  (AVIF + WebP sources, widths per variant in `widthsFor`, never above the source width, default `sizes` per
+  variant in `defaultSizes`; callers pass `sizes` when a variant sits in another layout). `<picture>` is `block`
+  — never `contents`, which turns its `<source>` children into grid/flex items and adds gaps. A source smaller
+  than the requested size keeps its own shape (as `<Image>` did). Plain URLs (CMS preview `blob:` uploads,
+  YouTube thumbnails) stay `<img>`. Gallery full-size links and share images use `getImage`.
 - Images: referenced relative to the content file (`../../assets/uploads/…`). The CMS media library may save the
   repo path (`/src/assets/uploads/…`); `normalizeUploadPath` converts it.
 - `src/content/pages/kitchen-sink.md` (`noIndex`) shows one of every block — use it for visual checks.
